@@ -96,6 +96,8 @@ User (localStorage: grademate_user)
                     └── gradePoints (number)
 ```
 
+Saved data loads in `plugins/persisted-state.client.ts`, and nothing is saved until it has loaded. Dashboard, sign-in, and registration pages render only in the browser, because the server can't read local storage.
+
 Computed: `Semester.gpa`, `Semester.totalCredits`, `Store.cgpa` (weighted average across all semesters).
 
 ---

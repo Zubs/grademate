@@ -14,8 +14,7 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref<User | null>(null)
     const isLoading = ref(false)
 
-    // Hydrate from localStorage on client
-    if (import.meta.client) {
+    function hydrate() {
         const stored = localStorage.getItem('grademate_user')
         if (stored) {
             try {
@@ -108,6 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     return {
         user,
+        hydrate,
         isLoading,
         isAuthenticated,
         login,

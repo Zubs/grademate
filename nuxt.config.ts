@@ -18,6 +18,19 @@ export default defineNuxtConfig({
     fallback: 'dark',
   },
 
+  routeRules: {
+    '/dashboard/**': { ssr: false },
+    '/login': { ssr: false },
+    '/register': { ssr: false },
+  },
+
+  nitro: {
+    prerender: {
+      // Calculator pages arrive in feature 21. Remove this once they exist.
+      ignore: ['/calculator'],
+    },
+  },
+
   css: ['~/assets/css/main.css'],
 
   vite: {

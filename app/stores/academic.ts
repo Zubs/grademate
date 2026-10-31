@@ -152,24 +152,26 @@ export const useAcademicStore = defineStore('academic', () => {
     const years = ref<AcademicYear[]>([])
     const gradingScale = ref<GradingScale>('4.0')
 
-    // Hydrate
-    if (import.meta.client) {
-        const y = localStorage.getItem('grademate_years')
-        const s = localStorage.getItem('grademate_scale')
-        if (y) {
+    const loaded = ref(false)
+
+    function hydrate() {
+        const savedYears = localStorage.getItem('grademate_years')
+        const savedScale = localStorage.getItem('grademate_scale')
+        if (savedYears) {
             try {
-                years.value = JSON.parse(y)
+                years.value = JSON.parse(savedYears)
             } catch {
                 years.value = []
             }
         }
-        if (s) {
-            gradingScale.value = s as GradingScale
+        if (savedScale && savedScale in SCALES) {
+            gradingScale.value = savedScale as GradingScale
         }
+        loaded.value = true
     }
 
     function persist() {
-        if (import.meta.client) {
+        if (import.meta.client && loaded.value) {
             localStorage.setItem('grademate_years', JSON.stringify(years.value))
             localStorage.setItem('grademate_scale', gradingScale.value)
         }
@@ -519,6 +521,7 @@ export const useAcademicStore = defineStore('academic', () => {
 
     return {
         years,
+        hydrate,
         gradingScale,
         scaleGrades,
         maxPoints,

@@ -542,7 +542,7 @@ Tick a feature in the list below when everything under **How it works** is built
 - One public page per scale, such as `/calculator/4-0-gpa`, `/calculator/5-0-gpa` and `/calculator/uk`.
 - Each page has a simple calculator that works without an account, plus a short explanation of how that scale works.
 - Pages are pre-rendered so search engines can read them, with their own title, description, and answers to common questions.
-- Pages are included in a sitemap, and the landing page's calculator links from feature 1 lead to them.
+- Pages are included in a sitemap, and the landing page's calculator links from feature 1 lead to them. The temporary prerender exclusion for `/calculator` in `nuxt.config.ts` is removed.
 - A prompt invites students to create an account and save their results.
 
 **Tests**
