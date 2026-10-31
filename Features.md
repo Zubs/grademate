@@ -7,7 +7,7 @@ Tick a feature in the list below when everything under **How it works** is built
 ## Progress
 
 - [x] 1. Complete website redesign
-- [ ] 2. Keep records after a page reload
+- [x] 2. Keep records after a page reload
 - [ ] 3. Courses with no grade
 - [ ] 4. Changing the grading scale
 - [ ] 5. Separate records for each account

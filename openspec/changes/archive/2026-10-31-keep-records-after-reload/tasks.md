@@ -21,7 +21,7 @@
 - [x] 4.1 Run `npm run generate`, and verify the static output serves the landing page's content in its HTML and has a fallback page for the browser-only routes
 - [x] 4.2 Update the persistence statements in `Spec.md` and `README.md` if they no longer match, and verify they describe the new behavior
 - [x] 4.3 Run `npm run lint`, `typecheck`, `test`, `build`, and `test:e2e` until all pass
-- [ ] 4.4 Stop for the owner to confirm the reload journey on a Netlify deploy preview, as the feature's done criterion requires, and on confirmation tick feature 2 in `Features.md`
+- [x] 4.4 Stop for the owner to confirm the reload journey on a Netlify deploy preview, as the feature's done criterion requires, and on confirmation tick feature 2 in `Features.md` (confirmed by the owner)
 
 ## Workflow follow-up
 
