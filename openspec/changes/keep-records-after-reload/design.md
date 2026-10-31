@@ -45,10 +45,13 @@ Playwright tests use real reloads and direct page opens against the production b
 ### Exclude calculator links from static generation
 Found during implementation: the landing page's calculator links from feature 1 lead to pages that don't exist until feature 21, and they made `npm run generate` fail outright. `/calculator` is excluded from prerendering until then, and feature 21 removes the exclusion.
 
+### Deploy as static files
+Found during the deploy preview: Netlify's server function returned a 500 on every server-rendered page, while browser-only pages worked. The same function build worked on macOS and in a clean Linux container on Node 20 and 22, so the cause wasn't found outside Netlify. The app has no server-side needs, so `netlify.toml` now runs `npm run generate` and publishes `dist`, which runs no function. The static output passes the reload and journey tests.
+
 ## Risks / Trade-offs
 
 - **[Blank moment on app pages]** Browser-only pages show a blank screen until scripts load. → This replaces a wrong redirect, and the page background is set so it doesn't flash white. A loading template is added only if this looks poor in review.
-- **[Static hosting behavior]** `README.md` says Netlify uses `npm run generate`, but `netlify.toml` sets no command and the actual setting isn't visible from the repo. → Check both build modes locally, and confirm on a Netlify deploy preview before ticking the feature.
+- **[Static hosting behavior]** The site now depends on static output on Netlify. → Confirm on a Netlify deploy preview before ticking the feature.
 - **[Records already lost]** Records overwritten before this fix can't be recovered. → Nothing can be done in code, and `grademate.xyz` stays exposed until this ships.
 - **[Shared browser]** Fixing reloads means records now reliably reappear for whoever signs in next. → That exposure already exists, and feature 5 fixes it.
 

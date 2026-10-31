@@ -156,4 +156,4 @@ npm run test      # Vitest unit tests
 npm run test:e2e  # Playwright browser tests, including the design audit
 ```
 
-Deploy to Netlify: set build command to `npm run generate`, publish dir to `.output/public`.
+Deploy to Netlify: `netlify.toml` builds the site as static files with `npm run generate` and publishes `dist`.
