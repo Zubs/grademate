@@ -26,6 +26,8 @@ export interface AcademicYear {
     semesters: Semester[]
 }
 
+export type GradingScale = '4.0' | '5.0' | 'uk'
+
 // Grading scales
 const SCALES = {
     '4.0': [
@@ -148,18 +150,21 @@ const SCALES = {
 
 export const useAcademicStore = defineStore('academic', () => {
     const years = ref<AcademicYear[]>([])
-    const gradingScale = ref<'4.0' | '5.0' | 'uk'>('4.0')
+    const gradingScale = ref<GradingScale>('4.0')
 
     // Hydrate
     if (import.meta.client) {
         const y = localStorage.getItem('grademate_years')
         const s = localStorage.getItem('grademate_scale')
-        if (y) try {
-            years.value = JSON.parse(y)
-        } catch {
+        if (y) {
+            try {
+                years.value = JSON.parse(y)
+            } catch {
+                years.value = []
+            }
         }
         if (s) {
-            gradingScale.value = s as any
+            gradingScale.value = s as GradingScale
         }
     }
 
@@ -293,7 +298,7 @@ export const useAcademicStore = defineStore('academic', () => {
         persist()
     }
 
-    function setScale(scale: '4.0' | '5.0' | 'uk') {
+    function setScale(scale: GradingScale) {
         gradingScale.value = scale
         persist()
     }

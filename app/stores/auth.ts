@@ -21,6 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
             try {
                 user.value = JSON.parse(stored)
             } catch {
+                user.value = null
             }
         }
     }
@@ -34,7 +35,7 @@ export const useAuthStore = defineStore('auth', () => {
             .toUpperCase().slice(0, 2)
     }
 
-    async function login(email: string, password: string) {
+    async function login(email: string, _password: string) {
         isLoading.value = true
         await new Promise(r => setTimeout(r, 900))
         // Mock auth — replace with real API call

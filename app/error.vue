@@ -1,57 +1,27 @@
 <template>
-  <div class="error-page">
-    <div class="error-inner animate-fade-up">
-      <div class="error-num display">404</div>
-      <h1 class="error-title">Page not found</h1>
-      <p class="error-sub">The page you're looking for doesn't exist or has been moved.</p>
-      <div class="error-actions">
-        <NuxtLink to="/" class="btn btn-primary">Go home</NuxtLink>
-        <NuxtLink to="/dashboard" class="btn btn-ghost">Dashboard</NuxtLink>
-      </div>
-    </div>
+  <div class="dark relative isolate flex min-h-screen flex-col items-center overflow-hidden px-6 pt-24 text-center text-ink">
+    <SkipLink />
+    <NightScene class="-z-10" />
+    <PhStarFour :size="48" weight="fill" class="text-accent-ink" aria-hidden="true" />
+    <main id="main-content" class="mt-4 flex flex-col items-center outline-none" tabindex="-1">
+      <p class="caption-3 tabular text-ink-soft">{{ error?.statusCode }}</p>
+      <h1 class="heading-2 mt-2 max-w-hero">{{ notFound ? 'This star isn\'t on your chart' : 'Something went wrong' }}</h1>
+      <p class="body-3 mt-4 max-w-hero text-ink">
+        {{ notFound ? 'The page you opened doesn\'t exist or has moved.' : 'The page couldn\'t load. Go back home and try again.' }}
+      </p>
+      <button type="button" class="button button-primary mt-8" @click="clearError({ redirect: '/' })">
+        Back to home
+      </button>
+    </main>
   </div>
 </template>
 
-<style scoped>
-.error-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  text-align: center;
-}
+<script setup lang="ts">
+import { PhStarFour } from '@phosphor-icons/vue'
+import type { NuxtError } from '#app'
 
-.error-inner {
-  max-width: 400px;
-}
+const props = defineProps<{ error: NuxtError }>()
+const notFound = computed(() => props.error?.statusCode === 404)
 
-.error-num {
-  font-size: 8rem;
-  font-weight: 300;
-  color: var(--amber-400);
-  opacity: 0.4;
-  line-height: 1;
-  margin-bottom: 16px;
-}
-
-.error-title {
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin-bottom: 10px;
-}
-
-.error-sub {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  margin-bottom: 32px;
-  line-height: 1.6;
-}
-
-.error-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-</style>
+useSeoMeta({ title: () => `${notFound.value ? 'Page not found' : 'Error'} | GradeMate` })
+</script>

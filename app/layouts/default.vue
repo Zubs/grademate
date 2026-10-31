@@ -1,73 +1,94 @@
 <template>
-  <div class="layout-default">
-    <header class="site-header" :class="{ scrolled }">
-      <div class="container header-inner">
-        <NuxtLink to="/" class="logo">
-          <span class="logo-icon">GM</span>
-          <span class="logo-text">GradeMate</span>
-        </NuxtLink>
+  <div class="flex min-h-screen flex-col">
+    <SkipLink />
 
-        <nav class="nav-links">
-          <NuxtLink to="/#features" class="nav-link">Features</NuxtLink>
-          <NuxtLink to="/#how-it-works" class="nav-link">How it works</NuxtLink>
-          <NuxtLink to="/#scales" class="nav-link">Grading scales</NuxtLink>
+    <header class="fixed inset-x-0 top-4 z-50 flex justify-center px-4">
+      <div class="flex w-full items-center justify-between gap-6 rounded-2xl border border-line bg-surface/80 py-2 pr-2 pl-3 backdrop-blur-md tablet:w-auto">
+        <AppLogo />
+
+        <nav class="hidden items-center gap-1 tablet:flex" aria-label="Main">
+          <NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="nav-link">
+            {{ link.label }}
+          </NuxtLink>
         </nav>
 
-        <div class="header-actions">
-          <ColorModeToggle/>
-          <NuxtLink v-if="!auth.isAuthenticated" to="/login" class="btn btn-ghost btn-sm">Sign in</NuxtLink>
-          <NuxtLink v-if="!auth.isAuthenticated" to="/register" class="btn btn-primary btn-sm">Get started</NuxtLink>
-          <NuxtLink v-else to="/dashboard" class="btn btn-primary btn-sm">Dashboard →</NuxtLink>
+        <div class="hidden items-center gap-2 tablet:flex">
+          <ColorModeToggle />
+          <template v-if="auth.isAuthenticated">
+            <NuxtLink to="/dashboard" class="button button-primary button-small">Open dashboard</NuxtLink>
+          </template>
+          <template v-else>
+            <NuxtLink to="/login" class="nav-link">Sign in</NuxtLink>
+            <NuxtLink to="/register" class="button button-primary button-small">Create account</NuxtLink>
+          </template>
         </div>
 
-        <button class="mobile-menu-btn" @click="mobileOpen = !mobileOpen" aria-label="Menu">
-          <span :class="['bar', { open: mobileOpen }]"></span>
+        <button
+          type="button"
+          class="relative z-10 flex size-10 items-center justify-center rounded-lg text-ink tablet:hidden"
+          :aria-expanded="menuOpen"
+          :aria-label="menuOpen ? 'Close menu' : 'Open menu'"
+          @click="menuOpen = !menuOpen"
+        >
+          <span class="menu-line" :class="menuOpen ? 'rotate-45' : '-translate-y-1'" />
+          <span class="menu-line" :class="menuOpen ? '-rotate-45' : 'translate-y-1'" />
         </button>
       </div>
-
-      <!-- Mobile nav -->
-      <Transition name="mobile-nav">
-        <div v-if="mobileOpen" class="mobile-nav">
-          <NuxtLink to="/#features" class="mobile-link" @click="mobileOpen=false">Features</NuxtLink>
-          <NuxtLink to="/#how-it-works" class="mobile-link" @click="mobileOpen=false">How it works</NuxtLink>
-          <NuxtLink to="/#scales" class="mobile-link" @click="mobileOpen=false">Grading scales</NuxtLink>
-          <div class="mobile-actions">
-            <NuxtLink to="/login" class="btn btn-ghost btn-full" @click="mobileOpen=false">Sign in</NuxtLink>
-            <NuxtLink to="/register" class="btn btn-primary btn-full" @click="mobileOpen=false">Get started free
-            </NuxtLink>
-          </div>
-        </div>
-      </Transition>
     </header>
 
-    <main>
-      <slot/>
+    <div
+      class="mobile-panel fixed inset-0 z-40 flex flex-col gap-2 bg-canvas/95 px-6 pt-24 pb-8 backdrop-blur-xl tablet:hidden"
+      :class="menuOpen ? 'opacity-100' : 'pointer-events-none invisible opacity-0'"
+      :inert="!menuOpen"
+    >
+      <nav class="flex flex-col gap-2" aria-label="Menu">
+        <NuxtLink
+          v-for="(link, index) in links"
+          :key="link.to"
+          :to="link.to"
+          class="mobile-link heading-5 py-2"
+          :class="{ 'mobile-link-in': menuOpen }"
+          :style="{ transitionDelay: menuOpen ? `${index * 60}ms` : '0ms' }"
+          @click="menuOpen = false"
+        >
+          {{ link.label }}
+        </NuxtLink>
+      </nav>
+      <div class="mt-auto flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <span class="title-4 text-ink-soft">Theme</span>
+          <ColorModeToggle />
+        </div>
+        <NuxtLink v-if="auth.isAuthenticated" to="/dashboard" class="button button-primary" @click="menuOpen = false">
+          Open dashboard
+        </NuxtLink>
+        <template v-else>
+          <NuxtLink to="/register" class="button button-primary" @click="menuOpen = false">Create your free account</NuxtLink>
+          <NuxtLink to="/login" class="button button-secondary" @click="menuOpen = false">Sign in</NuxtLink>
+        </template>
+      </div>
+    </div>
+
+    <main id="main-content" class="flex-1 outline-none" tabindex="-1">
+      <slot />
     </main>
 
-    <footer class="site-footer">
-      <div class="container footer-inner">
-        <div class="footer-brand">
-          <NuxtLink to="/" class="logo">
-            <span class="logo-icon">GM</span>
-            <span class="logo-text">GradeMate</span>
-          </NuxtLink>
-          <p class="footer-tagline">Your academic journey, tracked.</p>
+    <footer class="border-t border-line">
+      <div class="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 tablet:flex-row tablet:justify-between">
+        <div class="flex flex-col gap-2">
+          <AppLogo class="self-start" />
+          <p class="body-6 text-ink-soft">Every grade, every semester, in one place.</p>
+          <p class="caption-5 mt-2 text-ink-muted">© {{ new Date().getFullYear() }} GradeMate</p>
         </div>
-        <div class="footer-links">
-          <div class="footer-col">
-            <p class="footer-col-title">Product</p>
-            <NuxtLink to="/#features">Features</NuxtLink>
-            <NuxtLink to="/register">Get started</NuxtLink>
-          </div>
-          <div class="footer-col">
-            <p class="footer-col-title">Support</p>
-            <a href="mailto:zubairidrisaweda@gmail.com">Contact</a>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <div class="container">
-          <p>© {{ new Date().getFullYear() }} GradeMate. Built for students, by students.</p>
+        <div class="flex gap-12">
+          <nav class="flex flex-col gap-2" aria-label="Product">
+            <NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="footer-link">{{ link.label }}</NuxtLink>
+          </nav>
+          <nav class="flex flex-col gap-2" aria-label="Legal and contact">
+            <NuxtLink to="/privacy" class="footer-link">Privacy</NuxtLink>
+            <NuxtLink to="/terms" class="footer-link">Terms</NuxtLink>
+            <a href="mailto:zubairidrisaweda@gmail.com" class="footer-link">Contact</a>
+          </nav>
         </div>
       </div>
     </footer>
@@ -78,274 +99,59 @@
 import { useAuthStore } from '~/stores/auth'
 
 const auth = useAuthStore()
-const scrolled = ref(false)
-const mobileOpen = ref(false)
+const menuOpen = ref(false)
 
-onMounted(() => {
-  window.addEventListener('scroll', () => {
-    scrolled.value = window.scrollY > 20
-  })
-})
+const links = [
+  { to: '/#features', label: 'Features' },
+  { to: '/#how-it-works', label: 'How it works' },
+  { to: '/#faq', label: 'FAQ' },
+]
 </script>
 
 <style scoped>
-.layout-default {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* ── Header ── */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  padding: 0;
-  transition: background 0.3s, backdrop-filter 0.3s, border-color 0.3s;
-  border-bottom: 1px solid transparent;
-}
-
-.site-header.scrolled {
-  background: rgba(10, 15, 30, 0.85);
-  backdrop-filter: blur(16px);
-  border-bottom-color: var(--border);
-}
-
-.light .site-header.scrolled {
-  background: rgba(244, 246, 251, 0.88);
-}
-
-.header-inner {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  height: 64px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 1.3rem;
-  letter-spacing: -0.01em;
-  flex-shrink: 0;
-}
-
-.logo-icon {
-  background: var(--accent);
-  color: var(--navy-950);
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 700;
-  font-family: var(--font-body);
-  letter-spacing: 0.02em;
-}
-
-.logo-text {
-  color: var(--text-primary);
-}
-
-.nav-links {
-  display: flex;
-  gap: 4px;
-  margin-left: auto;
-}
+@reference '~/assets/css/main.css';
 
 .nav-link {
-  padding: 6px 14px;
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  border-radius: var(--radius-sm);
-  transition: color 0.15s, background 0.15s;
+  @apply body-5 rounded-lg px-3 py-2 text-ink-soft;
+  transition: color 300ms var(--ease-weighted), background-color 300ms var(--ease-weighted);
 }
 
 .nav-link:hover {
-  color: var(--text-primary);
-  background: var(--bg-elevated);
+  @apply bg-raised text-ink;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.footer-link {
+  @apply body-6 rounded text-ink-soft;
+  transition: color 300ms var(--ease-weighted);
 }
 
-.mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  padding: 6px;
-  margin-left: auto;
+.footer-link:hover {
+  @apply text-ink;
 }
 
-.bar {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: var(--text-secondary);
-  border-radius: 2px;
-  position: relative;
-  transition: all 0.2s;
+.menu-line {
+  @apply absolute h-0.5 w-6 rounded bg-current;
+  transition: transform 500ms var(--ease-weighted);
 }
 
-.bar::before, .bar::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  width: 22px;
-  height: 2px;
-  background: var(--text-secondary);
-  border-radius: 2px;
-  transition: all 0.2s;
-}
-
-.bar::before {
-  top: -7px;
-}
-
-.bar::after {
-  top: 7px;
-}
-
-.bar.open {
-  background: transparent;
-}
-
-.bar.open::before {
-  top: 0;
-  transform: rotate(45deg);
-}
-
-.bar.open::after {
-  top: 0;
-  transform: rotate(-45deg);
-}
-
-.mobile-nav {
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.mobile-panel {
+  transition: opacity 300ms var(--ease-weighted), visibility 300ms;
 }
 
 .mobile-link {
-  padding: 10px 12px;
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  border-radius: var(--radius-sm);
-  transition: color 0.15s, background 0.15s;
-}
-
-.mobile-link:hover {
-  color: var(--text-primary);
-  background: var(--bg-elevated);
-}
-
-.mobile-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
-
-.mobile-nav-enter-active, .mobile-nav-leave-active {
-  transition: all 0.2s var(--ease);
-}
-
-.mobile-nav-enter-from, .mobile-nav-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(24px);
+  transition: opacity 500ms var(--ease-weighted), transform 500ms var(--ease-weighted);
 }
 
-/* ── Footer ── */
-.site-footer {
-  margin-top: auto;
-  border-top: 1px solid var(--border);
+.mobile-link-in {
+  opacity: 1;
+  transform: none;
 }
 
-.footer-inner {
-  display: flex;
-  gap: 48px;
-  padding: 48px 0;
-  flex-wrap: wrap;
-}
-
-.footer-brand {
-  flex: 1;
-  min-width: 180px;
-}
-
-.footer-tagline {
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.footer-links {
-  display: flex;
-  gap: 48px;
-}
-
-.footer-col {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.footer-col-title {
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-}
-
-.footer-col a {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  transition: color 0.15s;
-}
-
-.footer-col a:hover {
-  color: var(--text-primary);
-}
-
-.footer-bottom {
-  border-top: 1px solid var(--border);
-  padding: 16px 0;
-}
-
-.footer-bottom p {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-}
-
-main {
-  flex: 1;
-}
-
-@media (max-width: 768px) {
-  .nav-links {
-    display: none;
-  }
-
-  .header-actions .btn {
-    display: none;
-  }
-
-  .mobile-menu-btn {
-    display: block;
+@media (prefers-reduced-motion: reduce) {
+  .mobile-link {
+    transform: none;
   }
 }
 </style>
