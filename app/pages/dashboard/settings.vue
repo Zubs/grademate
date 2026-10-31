@@ -1,181 +1,128 @@
 <template>
-  <div class="settings-page animate-fade-in">
-    <div class="page-head">
-      <div>
-        <h1 class="page-title">Settings</h1>
-        <p class="page-sub">Manage your profile, grading scale, and data.</p>
-      </div>
+  <div class="mx-auto flex max-w-6xl flex-col gap-8">
+    <div>
+      <h1 class="heading-4">Settings</h1>
+      <p class="body-6 mt-1 text-ink-soft">Manage your profile, grading scale, and data.</p>
     </div>
 
-    <div class="settings-body">
-      <!-- Left column -->
-      <div class="settings-col">
-
-        <!-- Profile -->
-        <div class="card settings-card">
-          <h2 class="card-title">Profile</h2>
-          <div class="avatar-row">
-            <div class="avatar-lg">{{ auth.user?.avatarInitials }}</div>
-            <div>
-              <p class="avatar-name">{{ auth.user?.name }}</p>
-              <p class="avatar-email">{{ auth.user?.email }}</p>
+    <div class="grid items-start gap-8 tablet:grid-cols-2">
+      <div class="flex flex-col gap-8">
+        <section class="panel flex flex-col gap-4 p-4 tablet:p-6">
+          <h2 class="heading-6">Profile</h2>
+          <div class="flex items-center gap-3">
+            <span class="body-4 flex size-12 items-center justify-center rounded-lg bg-accent text-on-accent">{{ auth.user?.avatarInitials }}</span>
+            <div class="min-w-0">
+              <p class="title-4 truncate">{{ auth.user?.name }}</p>
+              <p class="caption-5 truncate text-ink-muted">{{ auth.user?.email }}</p>
             </div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">Full name</label>
-            <input v-model="profile.name" class="form-input" placeholder="Your name"/>
+          <div class="flex flex-col gap-2">
+            <label class="field-label" for="profile-name">Full name</label>
+            <input id="profile-name" v-model="profile.name" class="field" placeholder="Your name">
           </div>
-          <div class="form-group">
-            <label class="form-label">Email address</label>
-            <input v-model="profile.email" type="email" class="form-input" placeholder="you@university.edu"/>
+          <div class="flex flex-col gap-2">
+            <label class="field-label" for="profile-email">Email address</label>
+            <input id="profile-email" v-model="profile.email" type="email" class="field" placeholder="you@university.edu">
           </div>
-          <div class="form-group">
-            <label class="form-label">Institution <span class="optional">(optional)</span></label>
-            <input v-model="profile.institution" class="form-input" placeholder="University name"/>
+          <div class="flex flex-col gap-2">
+            <label class="field-label" for="profile-institution">Institution (optional)</label>
+            <input id="profile-institution" v-model="profile.institution" class="field" placeholder="University name">
           </div>
-
-          <div v-if="profileSaved" class="save-toast">✓ Profile updated</div>
-
-          <button class="btn btn-primary" @click="saveProfile" :disabled="profileSaving">
-            {{ profileSaving ? 'Saving…' : 'Save profile' }}
+          <p v-if="profileSaved" class="body-5 inline-flex items-center gap-2 text-positive" role="status">
+            <PhCheckCircle :size="16" weight="bold" aria-hidden="true" />
+            Profile updated
+          </p>
+          <button type="button" class="button button-primary self-start" :disabled="profileSaving" @click="saveProfile">
+            {{ profileSaving ? 'Saving' : 'Save profile' }}
           </button>
-        </div>
+        </section>
 
-        <!-- Appearance -->
-        <div class="card settings-card">
-          <h2 class="card-title">Appearance</h2>
-          <div class="form-group">
-            <label class="form-label">Theme</label>
-            <div class="theme-options">
-              <button
-                  v-for="mode in ['dark', 'light', 'system']" :key="mode"
-                  :class="['theme-btn', { active: $colorMode.preference === mode }]"
-                  @click="$colorMode.preference = mode">
-                <span class="theme-icon">
-                  <svg v-if="mode === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2"><path
-                      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                  <svg v-else-if="mode === 'light'" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path
-                      d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                  <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                       stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path
-                      d="M8 21h8M12 17v4"/></svg>
-                </span>
-                {{ mode.charAt(0).toUpperCase() + mode.slice(1) }}
-              </button>
-            </div>
+        <section class="panel flex flex-col gap-4 p-4 tablet:p-6">
+          <h2 class="heading-6">Appearance</h2>
+          <div class="grid grid-cols-3 gap-2" role="group" aria-label="Theme">
+            <button
+              v-for="theme in themes"
+              :key="theme.value"
+              type="button"
+              class="button button-small"
+              :class="$colorMode.preference === theme.value ? 'button-primary' : 'button-secondary'"
+              :aria-pressed="$colorMode.preference === theme.value"
+              @click="$colorMode.preference = theme.value"
+            >
+              <component :is="theme.icon" :size="16" aria-hidden="true" />
+              {{ theme.label }}
+            </button>
           </div>
-        </div>
-
+        </section>
       </div>
 
-      <!-- Right column -->
-      <div class="settings-col">
-
-        <!-- Grading scale -->
-        <div class="card settings-card">
-          <h2 class="card-title">Grading scale</h2>
-          <p class="card-sub">This affects how GPA points are calculated across all your semesters.</p>
-
-          <div class="scale-options">
+      <div class="flex flex-col gap-8">
+        <section class="panel flex flex-col gap-4 p-4 tablet:p-6">
+          <div>
+            <h2 class="heading-6">Grading scale</h2>
+            <p class="caption-2 mt-1 text-ink-soft">This affects how GPA points are calculated across all your semesters.</p>
+          </div>
+          <fieldset class="flex flex-col gap-2">
+            <legend class="sr-only">Grading scale</legend>
             <label
-                v-for="s in scales" :key="s.value"
-                :class="['scale-option', { active: academic.gradingScale === s.value }]">
-              <input type="radio" :value="s.value" v-model="selectedScale" class="sr-only"/>
-              <div class="scale-option-inner">
-                <div class="scale-flag">{{ s.flag }}</div>
-                <div class="scale-info">
-                  <span class="scale-name">{{ s.name }}</span>
-                  <span class="scale-desc">{{ s.desc }}</span>
-                </div>
-                <div class="scale-check" v-if="academic.gradingScale === s.value">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                </div>
-              </div>
+              v-for="s in scales"
+              :key="s.value"
+              class="scale-option flex cursor-pointer items-center justify-between gap-4 rounded-lg border p-3"
+              :class="selectedScale === s.value ? 'border-accent-ink' : 'border-line'"
+            >
+              <span>
+                <span class="title-4 block">{{ s.name }}</span>
+                <span class="caption-5 text-ink-soft">{{ s.desc }}</span>
+              </span>
+              <input v-model="selectedScale" type="radio" :value="s.value" class="accent-[var(--accent-fill)]">
             </label>
-          </div>
-
-          <div class="scale-warning" v-if="selectedScale !== academic.gradingScale">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
+          </fieldset>
+          <p v-if="selectedScale !== academic.gradingScale" class="body-6 inline-flex items-start gap-2 text-accent-ink">
+            <PhWarningCircle :size="16" class="mt-0.5 shrink-0" aria-hidden="true" />
             Changing scale will recalculate all GPAs. Your grades remain unchanged.
-          </div>
-
-          <button class="btn btn-primary" :disabled="selectedScale === academic.gradingScale" @click="saveScale">
+          </p>
+          <button type="button" class="button button-primary self-start" :disabled="selectedScale === academic.gradingScale" @click="saveScale">
             Apply scale
           </button>
-        </div>
+        </section>
 
-        <!-- Data management -->
-        <div class="card settings-card">
-          <h2 class="card-title">Data</h2>
-          <p class="card-sub">Export or reset your academic data.</p>
-
-          <div class="data-actions">
-            <div class="data-action-row">
-              <div class="data-action-info">
-                <span class="da-title">Export data</span>
-                <span class="da-desc">Download all your academic records as JSON.</span>
+        <section class="panel p-4 tablet:p-6">
+          <h2 class="heading-6">Data</h2>
+          <p class="caption-2 mt-1 text-ink-soft">Export or reset your academic data.</p>
+          <div class="mt-2 flex flex-col">
+            <div v-for="row in dataRows" :key="row.title" class="flex items-center justify-between gap-4 border-b border-line py-3 last:border-0">
+              <div>
+                <p class="title-4" :class="{ 'text-negative': row.danger }">{{ row.title }}</p>
+                <p class="caption-5 text-ink-soft">{{ row.detail }}</p>
               </div>
-              <button class="btn btn-ghost btn-sm" @click="exportData">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Export
+              <button type="button" class="button button-small" :class="row.danger ? 'button-danger' : 'button-secondary'" @click="row.action">
+                {{ row.label }}
               </button>
             </div>
-
-            <div class="divider"></div>
-
-            <div class="data-action-row">
-              <div class="data-action-info">
-                <span class="da-title">Load demo data</span>
-                <span class="da-desc">Populate with sample courses and semesters.</span>
-              </div>
-              <button class="btn btn-ghost btn-sm" @click="academic.loadDemo()">Load demo</button>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="data-action-row danger-row">
-              <div class="data-action-info">
-                <span class="da-title danger-text">Clear all data</span>
-                <span class="da-desc">Permanently delete all semesters and courses.</span>
-              </div>
-              <button class="btn btn-danger btn-sm" @click="confirmClear">Clear</button>
-            </div>
           </div>
-        </div>
+        </section>
 
-        <!-- Account -->
-        <div class="card settings-card">
-          <h2 class="card-title">Account</h2>
-          <div class="account-actions">
-            <div class="data-action-row danger-row">
-              <div class="data-action-info">
-                <span class="da-title">Sign out</span>
-                <span class="da-desc">Sign out from this device.</span>
-              </div>
-              <button class="btn btn-ghost btn-sm" @click="logout">Sign out</button>
-            </div>
+        <section class="panel flex items-center justify-between gap-4 p-4 tablet:p-6">
+          <div>
+            <h2 class="heading-6">Account</h2>
+            <p class="caption-5 text-ink-soft">Sign out from this device.</p>
           </div>
-        </div>
-
+          <button type="button" class="button button-secondary button-small" @click="logout">Sign out</button>
+        </section>
       </div>
     </div>
+
+    <ConfirmDialog
+      ref="clearDialog"
+      title="Clear all your data?"
+      message="This permanently deletes all your semesters and courses."
+      confirm-label="Clear data"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { PhCheckCircle, PhDesktop, PhMoon, PhSun, PhWarningCircle } from '@phosphor-icons/vue'
 import { useAuthStore } from '~/stores/auth'
 import { useAcademicStore } from '~/stores/academic'
 
@@ -191,6 +138,12 @@ const profile = reactive({
   institution: auth.user?.institution ?? '',
 })
 
+const themes = [
+  { value: 'dark', label: 'Dark', icon: PhMoon },
+  { value: 'light', label: 'Light', icon: PhSun },
+  { value: 'system', label: 'System', icon: PhDesktop },
+]
+
 const profileSaving = ref(false)
 const profileSaved = ref(false)
 const selectedScale = ref(academic.gradingScale)
@@ -198,19 +151,16 @@ const selectedScale = ref(academic.gradingScale)
 const scales = [
   {
     value: '4.0',
-    flag: '🇺🇸',
     name: '4.0 Scale',
     desc: 'Standard US university system'
   },
   {
     value: '5.0',
-    flag: '🇳🇬',
     name: '5.0 Scale',
     desc: 'Common in Nigerian universities'
   },
   {
     value: 'uk',
-    flag: '🇬🇧',
     name: 'UK Classifications',
     desc: 'First, 2:1, 2:2, Third'
   },
@@ -232,7 +182,7 @@ async function saveProfile() {
 }
 
 function saveScale() {
-  academic.setScale(selectedScale.value as any)
+  academic.setScale(selectedScale.value)
 }
 
 function exportData() {
@@ -250,14 +200,22 @@ function exportData() {
   URL.revokeObjectURL(url)
 }
 
-function confirmClear() {
-  if (confirm('This will permanently delete all your academic data. Continue?')) {
+const clearDialog = ref<{ ask: () => Promise<boolean> } | null>(null)
+
+async function confirmClear() {
+  if (await clearDialog.value?.ask()) {
     academic.years.splice(0)
     if (import.meta.client) {
       localStorage.removeItem('grademate_years')
     }
   }
 }
+
+const dataRows = [
+  { title: 'Export data', detail: 'Download all your academic records as JSON.', label: 'Export', action: exportData, danger: false },
+  { title: 'Load demo data', detail: 'Populate with sample courses and semesters.', label: 'Load demo', action: () => academic.loadDemo(), danger: false },
+  { title: 'Clear all data', detail: 'Permanently delete all semesters and courses.', label: 'Clear', action: confirmClear, danger: true },
+]
 
 async function logout() {
   auth.logout()
@@ -266,260 +224,12 @@ async function logout() {
 </script>
 
 <style scoped>
-.settings-page {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.page-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.page-title {
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.page-sub {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.settings-body {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-.settings-col {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.card-sub {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  margin-top: -8px;
-}
-
-.optional {
-  font-size: 0.76rem;
-  color: var(--text-muted);
-  font-weight: 400;
-}
-
-/* Profile */
-.avatar-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.avatar-lg {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--accent-subtle);
-  color: var(--amber-400);
-  border: 1px solid rgba(245, 166, 35, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.avatar-name {
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.avatar-email {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.save-toast {
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.2);
-  color: var(--green-400);
-  border-radius: var(--radius-md);
-  padding: 8px 12px;
-  font-size: 0.85rem;
-}
-
-/* Theme */
-.theme-options {
-  display: flex;
-  gap: 8px;
-}
-
-.theme-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 9px 12px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.theme-btn:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
-.theme-btn.active {
-  border-color: var(--amber-400);
-  background: var(--accent-subtle);
-  color: var(--amber-400);
-}
-
-.theme-icon {
-  display: flex;
-}
-
-/* Scale options */
-.scale-options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .scale-option {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 300ms var(--ease-weighted);
 }
 
-.scale-option:hover {
-  border-color: var(--border-strong);
-  background: var(--bg-elevated);
-}
-
-.scale-option.active {
-  border-color: var(--amber-400);
-  background: var(--accent-subtle);
-}
-
-.scale-option-inner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.scale-flag {
-  font-size: 1.4rem;
-}
-
-.scale-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.scale-name {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.scale-desc {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.scale-check {
-  color: var(--amber-400);
-}
-
-.scale-warning {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  background: rgba(245, 166, 35, 0.08);
-  border: 1px solid rgba(245, 166, 35, 0.2);
-  color: var(--amber-400);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  font-size: 0.82rem;
-  line-height: 1.5;
-}
-
-/* Data actions */
-.data-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.data-action-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 0;
-}
-
-.data-action-info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.da-title {
-  font-size: 0.88rem;
-  font-weight: 500;
-}
-
-.da-desc {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.danger-text {
-  color: var(--red-500);
-}
-
-.account-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-@media (max-width: 768px) {
-  .settings-body {
-    grid-template-columns: 1fr;
-  }
+.scale-option:focus-within {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
 }
 </style>

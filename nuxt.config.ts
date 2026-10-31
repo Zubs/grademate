@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from '@tailwindcss/vite'
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
@@ -7,6 +9,7 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/color-mode',
+    '@nuxt/eslint',
   ],
 
   colorMode: {
@@ -15,24 +18,47 @@ export default defineNuxtConfig({
     fallback: 'dark',
   },
 
+  routeRules: {
+    '/dashboard/**': { ssr: false },
+    '/login': { ssr: false },
+    '/register': { ssr: false },
+  },
+
+  nitro: {
+    prerender: {
+      // Calculator pages arrive in feature 21. Remove this once they exist.
+      ignore: ['/calculator'],
+    },
+  },
+
   css: ['~/assets/css/main.css'],
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
 
   app: {
     head: {
-      title: 'GradeМаtе — Your Academic Journey, Tracked',
+      htmlAttrs: { lang: 'en' },
       meta: [
-        { name: 'description', content: 'Calculate, forecast, and track your GPA across every semester. Built for students who take their grades seriously.' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'theme-color', content: '#0a0f1e' },
+        { name: 'theme-color', content: '#131209' },
       ],
       link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=DM+Sans:wght@300;400;500;600&display=swap'
+          href: 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap'
         },
       ],
+    },
+  },
+
+  runtimeConfig: {
+    public: {
+      siteUrl: 'https://grademate.xyz',
     },
   },
 

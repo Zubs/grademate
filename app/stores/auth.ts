@@ -14,13 +14,13 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref<User | null>(null)
     const isLoading = ref(false)
 
-    // Hydrate from localStorage on client
-    if (import.meta.client) {
+    function hydrate() {
         const stored = localStorage.getItem('grademate_user')
         if (stored) {
             try {
                 user.value = JSON.parse(stored)
             } catch {
+                user.value = null
             }
         }
     }
@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
             .toUpperCase().slice(0, 2)
     }
 
-    async function login(email: string, password: string) {
+    async function login(email: string, _password: string) {
         isLoading.value = true
         await new Promise(r => setTimeout(r, 900))
         // Mock auth — replace with real API call
@@ -107,6 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     return {
         user,
+        hydrate,
         isLoading,
         isAuthenticated,
         login,

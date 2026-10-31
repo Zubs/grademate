@@ -23,10 +23,13 @@ npm run dev
 ```
 grademate/
 ├── app/
+│   ├── assets/css/main.css        # Tailwind theme and shared styles
 │   ├── app.vue                    # Root with page transitions
 │   ├── error.vue                  # 404 page
 │   ├── components/
-│   │   └── ColorModeToggle.vue    # Dark/light toggle
+│   │   ├── ColorModeToggle.vue    # Dark/light toggle
+│   │   ├── NightScene.vue         # Code-drawn hero artwork
+│   │   └── ProductPreview.vue     # Interactive hero preview
 │   ├── layouts/
 │   │   ├── default.vue            # Marketing layout (header + footer)
 │   │   ├── auth.vue               # Auth layout (centered card, blurred bg)
@@ -43,11 +46,11 @@ grademate/
 │   │       ├── semesters.vue      # Academic years + course entry
 │   │       ├── forecast.vue       # Target grade forecaster
 │   │       └── settings.vue       # Profile, scale, data export
+│   ├── public/                    # Favicon and sharing image
 │   └── stores/
 │       ├── auth.ts                # User auth state (localStorage-backed)
 │       └── academic.ts            # Years → Semesters → Courses + GPA logic
-├── assets/css/
-│   └── main.css                   # Design tokens, reset, utilities, buttons
+├── tests/                         # Vitest unit tests and Playwright browser tests
 ├── nuxt.config.ts
 └── package.json
 ```
@@ -58,7 +61,8 @@ grademate/
 
 | Route                  | Layout    | Auth       | Description                                              |
 |------------------------|-----------|------------|----------------------------------------------------------|
-| `/`                    | default   | public     | Landing page — hero, features, how-it-works, scales, CTA |
+| `/`                    | default   | public     | Landing page with hero, features, FAQ, and CTA            |
+| `/privacy`, `/terms`   | default   | public     | Legal pages                                              |
 | `/login`               | auth      | guest-only | Sign in form with demo shortcut                          |
 | `/register`            | auth      | guest-only | Registration with scale selection + password strength    |
 | `/dashboard`           | dashboard | required   | Overview — CGPA ring, stats, GPA chart, recent semesters |
@@ -70,12 +74,12 @@ grademate/
 
 ## Design system
 
-All tokens live in `assets/css/main.css` as CSS custom properties.
+Tailwind CSS theme tokens and shared styles live in `app/assets/css/main.css`, following the `landing-page-design` skill.
 
-**Palette:** Navy base (`--navy-*`) with amber accent (`--amber-*`, `--accent`).  
-**Typography:** `Fraunces` (display headings, numbers) + `DM Sans` (UI text).  
-**Dark/light:** Class-based via `@nuxtjs/color-mode`. Override with `.light {}` selectors.  
-**Breakpoints:** Mobile ≤480px, tablet ≤768px, desktop ≥900px.
+**Colors:** Neutral dark and light surfaces with one amber accent. The night scene artwork in `NightScene.vue` uses its own flat colors.
+**Typography:** `Geist`, with named text styles such as `heading-1`, `body-3`, and `button-md`.
+**Icons:** Phosphor.
+**Dark/light:** Class-based through `@nuxtjs/color-mode`, connected to Tailwind's `dark:` variant.
 
 ---
 
@@ -91,6 +95,8 @@ User (localStorage: grademate_user)
                     ├── grade (string — from active scale)
                     └── gradePoints (number)
 ```
+
+Saved data loads in `plugins/persisted-state.client.ts`, and nothing is saved until it has loaded. Dashboard, sign-in, and registration pages render only in the browser, because the server can't read local storage.
 
 Computed: `Semester.gpa`, `Semester.totalCredits`, `Store.cgpa` (weighted average across all semesters).
 
@@ -137,16 +143,6 @@ For the academic data store, replace `persist()` calls with API syncs and keep l
 
 ---
 
-## Next steps (from roadmap)
-
-- [ ] **PDF export** — use `jsPDF` + `html2canvas` on the semester view
-- [ ] **Course templates** — pre-filled degree templates (Phase 4 growth lever)
-- [ ] **Laravel backend** — replace mock auth + localStorage with real API
-- [ ] **SEO landing pages** — `/calculator/4-0-gpa`, `/calculator/uk`, etc. (needs Nuxt SSR)
-- [ ] **Keyboard navigation** — Tab/Enter traversal across the course input table
-
----
-
 ## Scripts
 
 ```bash
@@ -154,6 +150,10 @@ npm run dev       # Dev server at localhost:3000
 npm run build     # Production build
 npm run generate  # Static site generation (for Netlify/Vercel)
 npm run preview   # Preview production build locally
+npm run lint      # ESLint
+npm run typecheck # Static analysis
+npm run test      # Vitest unit tests
+npm run test:e2e  # Playwright browser tests, including the design audit
 ```
 
-Deploy to Netlify: set build command to `npm run generate`, publish dir to `.output/public`.
+Deploy to Netlify: `netlify.toml` builds the site as static files with `npm run generate` and publishes `dist`.

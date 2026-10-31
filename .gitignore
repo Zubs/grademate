@@ -4,7 +4,8 @@
 .data/
 .nitro/
 .cache/
-dist/
+dist
+.netlify/
 
 # Node
 node_modules/
@@ -18,3 +19,7 @@ node_modules/
 .DS_Store
 *.log
 .idea
+
+# Playwright
+playwright-report/
+test-results/

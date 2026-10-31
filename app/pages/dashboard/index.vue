@@ -1,178 +1,115 @@
 <template>
-  <div class="overview animate-fade-in">
-
-    <!-- Empty state -->
-    <div v-if="!academic.years.length" class="empty-state">
-      <div class="empty-icon">🎓</div>
-      <h2 class="empty-title display">Let's set up your academic record</h2>
-      <p class="empty-sub">Add your first academic year and semester to start tracking your GPA.</p>
-      <div class="empty-actions">
-        <button class="btn btn-primary btn-lg" @click="$router.push('/dashboard/semesters')">
-          Add your first semester
-        </button>
-        <button class="btn btn-ghost" @click="loadDemo">Load demo data</button>
+  <div>
+    <div v-if="!academic.years.length" class="mx-auto flex max-w-hero flex-col items-center py-24 text-center">
+      <PhGraduationCap :size="48" class="text-accent-ink" aria-hidden="true" />
+      <h1 class="heading-4 mt-4">Let's set up your academic record</h1>
+      <p class="body-3 mt-2 text-ink-soft">Add your first academic year and semester to start tracking your GPA.</p>
+      <div class="mt-8 flex flex-wrap justify-center gap-2">
+        <NuxtLink to="/dashboard/semesters" class="button button-primary">Add your first semester</NuxtLink>
+        <button type="button" class="button button-secondary" @click="loadDemo">Load demo data</button>
       </div>
     </div>
 
-    <template v-else>
-      <!-- Welcome + CGPA hero -->
-      <div class="hero-row">
-        <div class="greeting">
-          <p class="greeting-label">Good {{ timeOfDay }},</p>
-          <h1 class="greeting-name display">{{ auth.user?.name?.split(' ')[0] }}</h1>
+    <div v-else class="mx-auto flex max-w-6xl flex-col gap-8">
+      <section class="grid items-center gap-8 tablet:grid-cols-2">
+        <div>
+          <p class="body-6 text-ink-soft">Good {{ timeOfDay }},</p>
+          <h1 class="heading-3">{{ auth.user?.name?.split(' ')[0] }}</h1>
         </div>
-        <div class="cgpa-hero">
-          <div class="cgpa-ring" :style="ringStyle">
-            <div class="cgpa-inner">
-              <span class="cgpa-val">{{ academic.cgpa.toFixed(2) }}</span>
-              <span class="cgpa-label">CGPA</span>
+        <div class="flex items-center gap-6 tablet:justify-end">
+          <div class="relative size-32 shrink-0">
+            <svg class="size-full -rotate-90" viewBox="0 0 120 120" aria-hidden="true">
+              <circle cx="60" cy="60" :r="ringRadius" fill="none" stroke="var(--overlay)" stroke-width="8" />
+              <circle
+                cx="60"
+                cy="60"
+                :r="ringRadius"
+                fill="none"
+                stroke="var(--accent-fill)"
+                stroke-width="8"
+                stroke-linecap="round"
+                :stroke-dasharray="ringLength"
+                :stroke-dashoffset="ringOffset"
+              />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="heading-5 tabular">{{ academic.cgpa.toFixed(2) }}</span>
+              <span class="caption-5 text-ink-soft">CGPA</span>
             </div>
           </div>
-          <div class="cgpa-meta">
-            <div class="cgpa-classification">
-              <span :class="['badge', classificationBadge]">{{ classification }}</span>
-            </div>
-            <p class="cgpa-scale">out of {{ academic.maxPoints.toFixed(1) }} · {{ scaleLabel }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stat cards -->
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-icon amber">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M4 6h16M4 10h16M4 14h10"/>
-            </svg>
-          </div>
-          <div class="stat-body">
-            <span class="stat-val">{{ academic.totalCredits }}</span>
-            <span class="stat-name">Total credits</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon green">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-          </div>
-          <div class="stat-body">
-            <span class="stat-val">{{ academic.completedCourses }}</span>
-            <span class="stat-name">Courses completed</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon blue">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="3" y="4" width="18" height="18" rx="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-          </div>
-          <div class="stat-body">
-            <span class="stat-val">{{ totalSemesters }}</span>
-            <span class="stat-name">Semesters</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon amber">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-              <polyline points="16 7 22 7 22 13"/>
-            </svg>
-          </div>
-          <div class="stat-body">
-            <span class="stat-val">{{ bestSemesterGPA }}</span>
-            <span class="stat-name">Best semester GPA</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- GPA chart -->
-      <div class="card chart-card">
-        <div class="chart-header">
           <div>
-            <h2 class="chart-title">GPA progression</h2>
-            <p class="chart-sub">Semester-by-semester performance</p>
-          </div>
-          <div class="chart-trend" :class="trendClass">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline v-if="trend >= 0" points="18 15 12 9 6 15"/>
-              <polyline v-else points="6 9 12 15 18 9"/>
-            </svg>
-            {{ Math.abs(trend).toFixed(2) }} vs last sem
+            <span class="tag" :class="classificationBadge">{{ classification }}</span>
+            <p class="caption-2 mt-2 text-ink-soft">out of {{ academic.maxPoints.toFixed(1) }}, {{ scaleLabel }}</p>
           </div>
         </div>
-        <div class="chart-wrap">
-          <canvas ref="chartCanvas" height="200"></canvas>
+      </section>
+
+      <section class="grid grid-cols-2 gap-4 tablet:grid-cols-4" aria-label="Summary">
+        <div v-for="stat in stats" :key="stat.name" class="panel p-4">
+          <component :is="stat.icon" :size="24" class="text-accent-ink" aria-hidden="true" />
+          <p class="heading-5 tabular mt-2">{{ stat.value }}</p>
+          <p class="caption-2 text-ink-soft">{{ stat.name }}</p>
         </div>
-      </div>
+      </section>
 
-      <!-- Recent semesters -->
-      <div class="section-head">
-        <h2 class="section-title">Recent semesters</h2>
-        <NuxtLink to="/dashboard/semesters" class="view-all">View all →</NuxtLink>
-      </div>
-
-      <div class="semesters-list">
-        <div v-for="sem in recentSemesters" :key="sem.id" class="sem-row">
-          <div class="sem-info">
-            <span class="sem-name">{{ sem.name }}</span>
-            <span class="sem-year">{{ sem.year }}</span>
+      <section class="panel p-4 tablet:p-6">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 class="heading-6">GPA progression</h2>
+            <p class="caption-2 text-ink-soft">Results by semester</p>
           </div>
-          <div class="sem-courses-count">{{ sem.courses.length }} courses</div>
-          <div class="sem-credits">{{ sem.totalCredits }} credits</div>
-          <div class="sem-gpa-wrap">
-            <span class="sem-gpa" :class="gpaClass(sem.gpa)">{{ sem.gpa.toFixed(2) }}</span>
-            <div class="sem-gpa-bar">
-              <div class="sem-gpa-fill" :style="{ width: (sem.gpa / academic.maxPoints * 100) + '%' }"></div>
+          <span class="body-5 tabular inline-flex items-center gap-1" :class="trendClass">
+            <PhTrendUp v-if="trend >= 0" :size="16" weight="bold" aria-hidden="true" />
+            <PhTrendDown v-else :size="16" weight="bold" aria-hidden="true" />
+            {{ Math.abs(trend).toFixed(2) }} vs last semester
+          </span>
+        </div>
+        <div class="mt-4 h-64">
+          <canvas ref="chartCanvas" role="img" aria-label="Line chart of GPA by semester" />
+        </div>
+      </section>
+
+      <section>
+        <div class="flex items-center justify-between gap-4">
+          <h2 class="heading-6">Recent semesters</h2>
+          <NuxtLink to="/dashboard/semesters" class="text-link body-5">View all</NuxtLink>
+        </div>
+        <ul class="panel mt-4 overflow-hidden">
+          <li v-for="sem in recentSemesters" :key="sem.id" class="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-line p-4 last:border-0">
+            <div class="min-w-0 flex-1">
+              <p class="title-4">{{ sem.name }}</p>
+              <p class="caption-5 text-ink-muted">{{ sem.year }}</p>
             </div>
-          </div>
-        </div>
-      </div>
+            <span class="caption-2 text-ink-soft">{{ sem.courses.length }} courses</span>
+            <span class="caption-2 text-ink-soft">{{ sem.totalCredits }} credits</span>
+            <span class="body-4 tabular" :class="gpaClass(sem.gpa)">{{ sem.gpa.toFixed(2) }}</span>
+          </li>
+        </ul>
+      </section>
 
-      <!-- Quick actions -->
-      <div class="quick-actions">
-        <NuxtLink to="/dashboard/semesters" class="action-card">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="16"/>
-            <line x1="8" y1="12" x2="16" y2="12"/>
-          </svg>
-          Add semester
+      <section class="grid gap-4 tablet:grid-cols-3" aria-label="Quick actions">
+        <NuxtLink v-for="action in quickActions" :key="action.label" :to="action.to" class="quick-action panel flex items-center gap-3 p-4">
+          <component :is="action.icon" :size="24" class="text-accent-ink" aria-hidden="true" />
+          <span class="title-4 flex-1">{{ action.label }}</span>
+          <PhCaretRight :size="16" class="text-ink-muted" aria-hidden="true" />
         </NuxtLink>
-        <NuxtLink to="/dashboard/forecast" class="action-card">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-            <polyline points="16 7 22 7 22 13"/>
-          </svg>
-          Run forecast
-        </NuxtLink>
-        <NuxtLink to="/dashboard/settings" class="action-card">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <circle cx="12" cy="12" r="3"/>
-            <path
-                d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-          </svg>
-          Settings
-        </NuxtLink>
-      </div>
-    </template>
+      </section>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { PhBookOpen, PhCalendarBlank, PhCaretRight, PhCertificate, PhGear, PhGraduationCap, PhPlus, PhRanking, PhTarget, PhTrendDown, PhTrendUp } from '@phosphor-icons/vue'
 import { useAuthStore } from '~/stores/auth'
 import { useAcademicStore } from '~/stores/academic'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const auth = useAuthStore()
+const colorMode = useColorMode()
 const academic = useAcademicStore()
 const chartCanvas = ref<HTMLCanvasElement | null>(null)
-let chartInstance: any = null
+let chartInstance: { destroy: () => void } | null = null
 
 function loadDemo() {
   academic.loadDemo()
@@ -214,7 +151,20 @@ const trend = computed(() => {
 
   return hist[hist.length - 1].gpa - hist[hist.length - 2].gpa
 })
-const trendClass = computed(() => trend.value >= 0 ? 'trend-up' : 'trend-down')
+const trendClass = computed(() => trend.value >= 0 ? 'text-positive' : 'text-negative')
+
+const stats = computed(() => [
+  { name: 'Total credits', value: academic.totalCredits, icon: PhBookOpen },
+  { name: 'Courses completed', value: academic.completedCourses, icon: PhCertificate },
+  { name: 'Semesters', value: totalSemesters.value, icon: PhCalendarBlank },
+  { name: 'Best semester GPA', value: bestSemesterGPA.value, icon: PhRanking },
+])
+
+const quickActions = [
+  { to: '/dashboard/semesters', label: 'Add semester', icon: PhPlus },
+  { to: '/dashboard/forecast', label: 'Run forecast', icon: PhTarget },
+  { to: '/dashboard/settings', label: 'Settings', icon: PhGear },
+]
 
 const scaleLabel = computed(() => ({
   '4.0': '4.0 Scale', '5.0': '5.0 Scale', 'uk': 'UK Classification',
@@ -269,35 +219,31 @@ const classification = computed(() => {
 
 const classificationBadge = computed(() => {
   if (['First Class'].includes(classification.value)) {
-    return 'badge-green'
+    return 'tag-positive'
   }
 
   if (['Second Class Upper', 'Upper Second'].includes(classification.value)) {
-    return 'badge-amber'
+    return 'tag-accent'
   }
 
-  return 'badge-muted'
+  return 'tag'
 })
 
-const ringStyle = computed(() => {
-  const pct = academic.cgpa / academic.maxPoints
-  const deg = Math.round(pct * 360)
-  return {
-    background: `conic-gradient(var(--accent) ${deg}deg, var(--bg-overlay) ${deg}deg)`,
-  }
-})
+const ringRadius = 54
+const ringLength = 2 * Math.PI * ringRadius
+const ringOffset = computed(() => ringLength * (1 - academic.cgpa / academic.maxPoints))
 
 function gpaClass(gpa: number) {
   const pct = gpa / academic.maxPoints
   if (pct >= 0.85) {
-    return 'gpa-high'
+    return 'text-positive'
   }
 
   if (pct >= 0.7) {
-    return 'gpa-mid'
+    return 'text-accent-ink'
   }
 
-  return 'gpa-low'
+  return 'text-ink-soft'
 }
 
 // Chart
@@ -313,11 +259,11 @@ async function renderChart() {
   }
 
   const hist = academic.semesterHistory
-  const isDark = document.documentElement.classList.contains('dark') ||
-      !document.documentElement.classList.contains('light')
-
-  const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'
-  const labelColor = isDark ? '#7b93b8' : '#4a5f88'
+  const style = getComputedStyle(document.documentElement)
+  const token = (name: string) => style.getPropertyValue(name).trim()
+  const accent = token('--accent-fill')
+  const gridColor = token('--line')
+  const labelColor = token('--ink-soft')
 
   chartInstance = new Chart(chartCanvas.value, {
     type: 'line',
@@ -326,15 +272,15 @@ async function renderChart() {
       datasets: [{
         label: 'GPA',
         data: hist.map(h => h.gpa),
-        borderColor: '#f5a623',
-        backgroundColor: 'rgba(245,166,35,0.08)',
+        borderColor: accent,
+        backgroundColor: 'transparent',
         borderWidth: 2.5,
-        pointBackgroundColor: '#f5a623',
-        pointBorderColor: isDark ? '#111827' : '#fff',
+        pointBackgroundColor: accent,
+        pointBorderColor: token('--surface'),
         pointBorderWidth: 2,
         pointRadius: 5,
         tension: 0.35,
-        fill: true,
+        fill: false,
       }],
     },
     options: {
@@ -342,22 +288,22 @@ async function renderChart() {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false }, tooltip: {
-          backgroundColor: isDark ? '#1a2438' : '#fff',
-          titleColor: isDark ? '#f0f4fa' : '#0a0f1e',
-          bodyColor: isDark ? '#adbdd6' : '#334466',
-          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+          backgroundColor: token('--raised'),
+          titleColor: token('--ink'),
+          bodyColor: token('--ink-soft'),
+          borderColor: token('--line'),
           borderWidth: 1, padding: 10, cornerRadius: 8,
         }
       },
       scales: {
         x: {
           grid: { color: gridColor },
-          ticks: { color: labelColor, font: { family: 'DM Sans', size: 12 }}
+          ticks: { color: labelColor, font: { family: 'Geist', size: 12 }}
         },
         y: {
           min: 0, max: academic.maxPoints,
           grid: { color: gridColor },
-          ticks: { color: labelColor, font: { family: 'DM Sans', size: 12 }, stepSize: 1 },
+          ticks: { color: labelColor, font: { family: 'Geist', size: 12 }, stepSize: 1 },
         },
       },
     },
@@ -368,382 +314,15 @@ onMounted(() => {
   nextTick(renderChart)
 })
 watch(() => academic.semesterHistory, () => nextTick(renderChart), { deep: true })
+watch(() => colorMode.value, () => nextTick(renderChart))
 </script>
 
 <style scoped>
-.overview {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+.quick-action {
+  transition: border-color 300ms var(--ease-weighted);
 }
 
-/* ── Empty state ── */
-.empty-state {
-  text-align: center;
-  padding: 80px 24px;
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 16px;
-}
-
-.empty-title {
-  font-size: 1.8rem;
-  margin-bottom: 10px;
-}
-
-.empty-sub {
-  color: var(--text-muted);
-  margin-bottom: 32px;
-  font-size: 0.95rem;
-}
-
-.empty-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-/* ── Hero row ── */
-.hero-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
-  flex-wrap: wrap;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 28px 32px;
-}
-
-.greeting-label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-.greeting-name {
-  font-size: 2.2rem;
-}
-
-.cgpa-hero {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.cgpa-ring {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  transition: background 0.4s;
-}
-
-.cgpa-inner {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: var(--bg-surface);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.cgpa-val {
-  font-size: 1.4rem;
-  font-weight: 600;
-  font-family: var(--font-display);
-  color: var(--amber-400);
-  line-height: 1;
-}
-
-.cgpa-label {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.cgpa-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.cgpa-scale {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-/* ── Stats ── */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-.stat-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.stat-icon.amber {
-  background: var(--accent-subtle);
-  color: var(--amber-400);
-}
-
-.stat-icon.green {
-  background: rgba(34, 197, 94, 0.1);
-  color: var(--green-400);
-}
-
-.stat-icon.blue {
-  background: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
-}
-
-.stat-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.stat-val {
-  font-size: 1.5rem;
-  font-weight: 600;
-  font-family: var(--font-display);
-  color: var(--text-primary);
-  line-height: 1.1;
-}
-
-.stat-name {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-/* ── Chart ── */
-.chart-card {
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-
-.chart-title {
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.chart-sub {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.chart-trend {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 20px;
-}
-
-.trend-up {
-  background: rgba(34, 197, 94, 0.1);
-  color: var(--green-400);
-}
-
-.trend-down {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--red-500);
-}
-
-.chart-wrap {
-  height: 200px;
-  position: relative;
-}
-
-/* ── Recent semesters ── */
-.section-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.section-title {
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.view-all {
-  font-size: 0.82rem;
-  color: var(--accent);
-}
-
-.view-all:hover {
-  text-decoration: underline;
-}
-
-.semesters-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sem-row {
-  display: grid;
-  grid-template-columns: 1fr 100px 80px 160px;
-  align-items: center;
-  gap: 16px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 14px 18px;
-  transition: border-color 0.15s;
-}
-
-.sem-row:hover {
-  border-color: var(--border-strong);
-}
-
-.sem-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sem-name {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.sem-year {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.sem-courses-count, .sem-credits {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-}
-
-.sem-gpa-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.sem-gpa {
-  font-size: 0.95rem;
-  font-weight: 600;
-  min-width: 36px;
-}
-
-.sem-gpa.gpa-high {
-  color: var(--green-400);
-}
-
-.sem-gpa.gpa-mid {
-  color: var(--amber-400);
-}
-
-.sem-gpa.gpa-low {
-  color: var(--red-500);
-}
-
-.sem-gpa-bar {
-  flex: 1;
-  height: 4px;
-  background: var(--bg-overlay);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.sem-gpa-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 2px;
-  transition: width 0.4s;
-}
-
-/* ── Quick actions ── */
-.quick-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.action-card {
-  flex: 1;
-  min-width: 140px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px 20px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  transition: all 0.15s;
-}
-
-.action-card:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-subtle);
-}
-
-@media (max-width: 768px) {
-  .stats-row {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .sem-row {
-    grid-template-columns: 1fr auto;
-  }
-
-  .sem-courses-count, .sem-credits {
-    display: none;
-  }
-
-  .hero-row {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 480px) {
-  .stats-row {
-    grid-template-columns: 1fr;
-  }
+.quick-action:hover {
+  border-color: var(--line-strong);
 }
 </style>

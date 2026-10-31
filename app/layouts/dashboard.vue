@@ -1,92 +1,70 @@
 <template>
-  <div class="layout-dashboard">
-    <!-- Sidebar -->
-    <aside class="sidebar" :class="{ open: sidebarOpen }">
-      <div class="sidebar-header">
-        <NuxtLink to="/" class="logo">
-          <span class="logo-icon">GM</span>
-          <span class="logo-text">GradeMate</span>
-        </NuxtLink>
-        <button class="sidebar-close" @click="sidebarOpen=false">✕</button>
+  <div class="min-h-screen">
+    <SkipLink />
+
+    <aside
+      class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-line bg-surface p-4 tablet:visible tablet:translate-x-0"
+      :class="sidebarOpen ? 'sidebar translate-x-0' : 'sidebar invisible -translate-x-full'"
+    >
+      <div class="flex items-center justify-between">
+        <AppLogo />
+        <button type="button" class="flex size-10 items-center justify-center rounded-lg text-ink-soft hover:bg-raised tablet:hidden" aria-label="Close menu" @click="sidebarOpen = false">
+          <PhX :size="16" aria-hidden="true" />
+        </button>
       </div>
 
-      <nav class="sidebar-nav">
-        <NuxtLink to="/dashboard" class="nav-item" exact-active-class="active" @click="sidebarOpen=false">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <rect x="3" y="3" width="7" height="7" rx="1"/>
-            <rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/>
-            <rect x="14" y="14" width="7" height="7" rx="1"/>
-          </svg>
-          Overview
-        </NuxtLink>
-        <NuxtLink to="/dashboard/semesters" class="nav-item" active-class="active" @click="sidebarOpen=false">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M4 6h16M4 10h16M4 14h10"/>
-          </svg>
-          Semesters
-        </NuxtLink>
-        <NuxtLink to="/dashboard/forecast" class="nav-item" active-class="active" @click="sidebarOpen=false">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
-            <polyline points="16 7 22 7 22 13"/>
-          </svg>
-          Forecaster
-        </NuxtLink>
-        <NuxtLink to="/dashboard/settings" class="nav-item" active-class="active" @click="sidebarOpen=false">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <circle cx="12" cy="12" r="3"/>
-            <path
-                d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-          </svg>
-          Settings
+      <nav class="mt-8 flex flex-col gap-1" aria-label="Dashboard">
+        <NuxtLink
+          v-for="item in navItems"
+          :key="item.to"
+          :to="item.to"
+          class="nav-item"
+          :exact-active-class="item.exact ? 'nav-item-active' : undefined"
+          :active-class="item.exact ? undefined : 'nav-item-active'"
+          @click="sidebarOpen = false"
+        >
+          <component :is="item.icon" :size="16" aria-hidden="true" />
+          {{ item.label }}
         </NuxtLink>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="user-card">
-          <div class="avatar">{{ auth.user?.avatarInitials }}</div>
-          <div class="user-info">
-            <p class="user-name">{{ auth.user?.name }}</p>
-            <p class="user-email">{{ auth.user?.email }}</p>
+      <div class="flex-1" />
+
+      <div class="flex flex-col gap-4 border-t border-line pt-4">
+        <div class="flex items-center gap-3">
+          <span class="caption-3 flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent text-on-accent">{{ auth.user?.avatarInitials }}</span>
+          <div class="min-w-0">
+            <p class="title-4 truncate">{{ auth.user?.name }}</p>
+            <p class="caption-5 truncate text-ink-muted">{{ auth.user?.email }}</p>
           </div>
         </div>
-        <div class="sidebar-footer-actions">
-          <ColorModeToggle/>
-          <button class="btn btn-ghost btn-sm" @click="handleLogout">Sign out</button>
+        <div class="flex items-center justify-between gap-2">
+          <ColorModeToggle />
+          <button type="button" class="button button-secondary button-small" @click="handleLogout">Sign out</button>
         </div>
       </div>
     </aside>
 
-    <!-- Overlay for mobile -->
-    <div v-if="sidebarOpen" class="sidebar-overlay" @click="sidebarOpen=false"/>
+    <div v-if="sidebarOpen" class="fixed inset-0 z-30 bg-black/60 tablet:hidden" @click="sidebarOpen = false" />
 
-    <!-- Main content -->
-    <div class="dashboard-main">
-      <header class="dash-topbar">
-        <button class="mobile-menu-btn" @click="sidebarOpen=true" aria-label="Open menu">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
+    <div class="flex min-h-screen min-w-0 flex-col tablet:ml-64">
+      <header class="sticky top-0 z-20 flex items-center gap-3 border-b border-line bg-canvas/80 px-4 py-3 backdrop-blur-md tablet:px-8">
+        <button type="button" class="flex size-10 items-center justify-center rounded-lg text-ink hover:bg-raised tablet:hidden" aria-label="Open menu" @click="sidebarOpen = true">
+          <PhList :size="24" aria-hidden="true" />
         </button>
-        <div class="topbar-breadcrumb">
-          <span class="breadcrumb-page">{{ pageTitle }}</span>
-        </div>
-        <div class="topbar-right">
-          <span class="cgpa-chip">
-            CGPA <strong>{{ academic.cgpa.toFixed(2) }}</strong>
-          </span>
-        </div>
+        <span class="title-3">{{ pageTitle }}</span>
+        <span class="tag tabular ml-auto">CGPA <strong class="caption-3 text-accent-ink">{{ academic.cgpa.toFixed(2) }}</strong></span>
       </header>
 
-      <main class="dash-content">
-        <slot/>
+      <main id="main-content" class="min-w-0 flex-1 px-4 py-8 outline-none tablet:px-8" tabindex="-1">
+        <slot />
       </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { PhCalendarBlank, PhGear, PhList, PhSquaresFour, PhTarget, PhX } from '@phosphor-icons/vue'
 import { useAuthStore } from '~/stores/auth'
 import { useAcademicStore } from '~/stores/academic'
 
@@ -96,15 +74,14 @@ const router = useRouter()
 const route = useRoute()
 const sidebarOpen = ref(false)
 
-const pageTitle = computed(() => {
-  const map: Record<string, string> = {
-    '/dashboard': 'Overview',
-    '/dashboard/semesters': 'Semesters',
-    '/dashboard/forecast': 'Forecaster',
-    '/dashboard/settings': 'Settings',
-  }
-  return map[route.path] || 'Dashboard'
-})
+const navItems = [
+  { to: '/dashboard', label: 'Overview', icon: PhSquaresFour, exact: true },
+  { to: '/dashboard/semesters', label: 'Semesters', icon: PhCalendarBlank, exact: false },
+  { to: '/dashboard/forecast', label: 'Forecaster', icon: PhTarget, exact: false },
+  { to: '/dashboard/settings', label: 'Settings', icon: PhGear, exact: false },
+]
+
+const pageTitle = computed(() => navItems.find(item => item.to === route.path)?.label ?? 'Dashboard')
 
 async function handleLogout() {
   auth.logout()
@@ -113,261 +90,26 @@ async function handleLogout() {
 </script>
 
 <style scoped>
-.layout-dashboard {
-  display: flex;
-  min-height: 100vh;
-}
+@reference '~/assets/css/main.css';
 
-/* ── Sidebar ── */
 .sidebar {
-  width: 240px;
-  flex-shrink: 0;
-  background: var(--bg-surface);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-}
-
-.logo-icon {
-  background: var(--accent);
-  color: var(--navy-950);
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 700;
-  font-family: var(--font-body);
-}
-
-.logo-text {
-  color: var(--text-primary);
-}
-
-.sidebar-close {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1rem;
-}
-
-.sidebar-nav {
-  flex: 1;
-  padding: 12px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  transition: transform 500ms var(--ease-weighted), visibility 500ms;
 }
 
 .nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  font-size: 0.88rem;
-  font-weight: 400;
-  color: var(--text-secondary);
-  border-radius: var(--radius-md);
-  transition: all 0.15s;
+  @apply body-5 flex items-center gap-3 rounded-lg px-3 py-2 text-ink-soft;
+  transition: background-color 300ms var(--ease-weighted), color 300ms var(--ease-weighted);
 }
 
 .nav-item:hover {
-  color: var(--text-primary);
-  background: var(--bg-elevated);
+  @apply bg-raised text-ink;
 }
 
-.nav-item.active {
-  color: var(--text-primary);
-  background: var(--bg-elevated);
-  font-weight: 500;
+.nav-item-active {
+  @apply bg-raised text-ink;
 }
 
-.nav-item.active svg {
-  color: var(--accent);
-}
-
-.sidebar-footer {
-  border-top: 1px solid var(--border);
-  padding: 14px 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.user-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--accent-subtle);
-  color: var(--amber-400);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.78rem;
-  font-weight: 600;
-  flex-shrink: 0;
-  border: 1px solid rgba(245, 166, 35, 0.2);
-}
-
-.user-info {
-  overflow: hidden;
-}
-
-.user-name {
-  font-size: 0.85rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-email {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sidebar-footer-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.sidebar-overlay {
-  display: none;
-}
-
-/* ── Dashboard main ── */
-.dashboard-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.dash-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  height: 56px;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: var(--bg-base);
-  border-bottom: 1px solid var(--border);
-}
-
-.mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-}
-
-.topbar-breadcrumb {
-  flex: 1;
-}
-
-.breadcrumb-page {
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.cgpa-chip {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  padding: 4px 12px;
-  border-radius: 20px;
-}
-
-.cgpa-chip strong {
-  color: var(--amber-400);
-  font-weight: 600;
-}
-
-.dash-content {
-  flex: 1;
-  padding: 28px 28px 48px;
-  max-width: 1100px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-/* ── Mobile ── */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 200;
-    transform: translateX(-100%);
-    transition: transform 0.25s var(--ease);
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .sidebar-close {
-    display: block;
-  }
-
-  .sidebar-overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 199;
-  }
-
-  .mobile-menu-btn {
-    display: flex;
-  }
-
-  .dash-content {
-    padding: 20px 16px 48px;
-  }
+.nav-item-active :deep(svg) {
+  @apply text-accent-ink;
 }
 </style>

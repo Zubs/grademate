@@ -1,931 +1,305 @@
 <template>
-  <div class="landing">
-
-    <!-- ── Hero ── -->
-    <section class="hero">
-      <div class="hero-bg">
-        <div class="blob b1"></div>
-        <div class="blob b2"></div>
-        <div class="grid-overlay"></div>
-      </div>
-      <div class="container hero-inner">
-        <div class="hero-content animate-fade-up">
-          <div class="hero-badge badge badge-amber">
-            <span class="badge-dot"></span>
-            Track every grade, every semester
-          </div>
-          <h1 class="hero-title display">
-            Your academic<br>
-            journey,<br>
-            <em class="accent-em">tracked.</em>
+  <div>
+    <section class="dark relative isolate min-h-screen overflow-hidden text-ink">
+      <NightScene class="-z-10" />
+      <div class="mx-auto grid w-full max-w-6xl items-start gap-8 px-4 pt-24 pb-8 tablet:grid-cols-2 tablet:gap-12 tablet:px-6 tablet:pb-16">
+        <div class="tablet:pt-16">
+          <h1 class="heading-1 hero-heading max-w-hero" data-hero-heading>
+            Know your GPA<br>
+            and what it takes<br>
+            to raise it
           </h1>
-          <p class="hero-subtitle">
-            Calculate your GPA, forecast the grades you need, and visualise progress across every semester — from
-            freshman year to graduation.
+          <p class="body-3 mt-6 max-w-hero text-ink">
+            GradeMate tracks every grade for university students on 4.0, 5.0, and UK scales, then shows the results you need to reach your target.
           </p>
-          <div class="hero-actions">
-            <NuxtLink to="/register" class="btn btn-primary btn-lg">
-              Start tracking free
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="m9 18 6-6-6-6"/>
-              </svg>
-            </NuxtLink>
-            <button class="btn btn-ghost btn-lg" @click="loadDemo">
-              See a demo
-            </button>
-          </div>
-          <p class="hero-hint">No credit card. No nonsense. Just your grades.</p>
+          <NuxtLink to="/register" class="button button-primary mt-8" data-primary-action>
+            Create your free account
+            <PhArrowRight :size="16" weight="bold" aria-hidden="true" />
+          </NuxtLink>
+          <p class="caption-2 mt-4 text-ink">Free for every student. No credit card.</p>
         </div>
-
-        <div class="hero-visual animate-fade-up delay-3">
-          <div class="dashboard-preview">
-            <div class="preview-header">
-              <div class="preview-dots">
-                <span></span><span></span><span></span>
-              </div>
-              <span class="preview-title">GradeMate — Overview</span>
-            </div>
-            <div class="preview-body">
-              <div class="preview-stat-row">
-                <div class="preview-stat">
-                  <span class="preview-stat-label">CGPA</span>
-                  <span class="preview-stat-val cgpa-val">3.65</span>
-                </div>
-                <div class="preview-stat">
-                  <span class="preview-stat-label">Credits</span>
-                  <span class="preview-stat-val">54</span>
-                </div>
-                <div class="preview-stat">
-                  <span class="preview-stat-label">Semesters</span>
-                  <span class="preview-stat-val">3</span>
-                </div>
-              </div>
-              <div class="preview-chart">
-                <div class="chart-label">GPA progression</div>
-                <div class="chart-bars">
-                  <div v-for="(b, i) in bars" :key="i" class="chart-bar-wrap">
-                    <div class="chart-bar" :style="{ height: b.h + '%', '--delay': i * 0.1 + 's' }"></div>
-                    <span class="chart-bar-label">{{ b.l }}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="preview-courses">
-                <div v-for="c in previewCourses" :key="c.name" class="preview-course-row">
-                  <span class="preview-course-name">{{ c.name }}</span>
-                  <span :class="['preview-grade', c.cls]">{{ c.grade }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProductPreview />
       </div>
     </section>
 
-    <!-- ── Social proof strip ── -->
-    <div class="proof-strip">
-      <div class="container proof-inner">
-        <span class="proof-text">Works with every grading scale</span>
-        <div class="proof-scales">
-          <span class="scale-chip">4.0 GPA (US)</span>
-          <span class="scale-chip">5.0 GPA (NG)</span>
-          <span class="scale-chip">UK Degree Classifications</span>
-          <span class="scale-chip">Custom scales</span>
-        </div>
+    <section id="features" ref="standSection" class="mx-auto grid max-w-6xl scroll-mt-24 items-center gap-12 px-6 py-24 tablet:grid-cols-2">
+      <div>
+        <h2 class="heading-2">Know where you stand</h2>
+        <p class="body-3 mt-4 text-ink-soft">Your whole record in one place, and every figure stays correct as you add to it.</p>
+        <ul class="mt-8 flex flex-col gap-4">
+          <li v-for="item in standing" :key="item.title" class="flex gap-3">
+            <component :is="item.icon" :size="24" class="shrink-0 text-accent-ink" aria-hidden="true" />
+            <p class="body-6 text-ink-soft"><strong class="body-4 text-ink">{{ item.title }}.</strong> {{ item.detail }}</p>
+          </li>
+        </ul>
       </div>
-    </div>
-
-    <!-- ── Features ── -->
-    <section id="features" class="section features-section">
-      <div class="container">
-        <div class="section-label">Features</div>
-        <h2 class="section-title display">Everything a serious<br>student needs</h2>
-        <p class="section-sub">No ads. No paywalls. The tools your academic career actually requires.</p>
-
-        <div class="features-grid">
-          <div v-for="(feat, i) in features" :key="feat.title" class="feature-card" :style="{ '--i': i }">
-            <div class="feature-icon" v-html="feat.icon"></div>
-            <h3 class="feature-title">{{ feat.title }}</h3>
-            <p class="feature-desc">{{ feat.desc }}</p>
-          </div>
+      <div class="panel overflow-hidden" aria-hidden="true">
+        <div class="flex items-center justify-between border-b border-line p-4">
+          <span class="title-4">Year 2, second semester</span>
+          <span class="tag tabular">3.77 GPA</span>
         </div>
-      </div>
-    </section>
-
-    <!-- ── How it works ── -->
-    <section id="how-it-works" class="section how-section">
-      <div class="container">
-        <div class="section-label">How it works</div>
-        <h2 class="section-title display">Three steps to clarity</h2>
-
-        <div class="steps">
-          <div v-for="(step, i) in steps" :key="step.title" class="step">
-            <div class="step-num">0{{ i + 1 }}</div>
-            <div class="step-content">
-              <h3 class="step-title">{{ step.title }}</h3>
-              <p class="step-desc">{{ step.desc }}</p>
-            </div>
-            <div v-if="i < steps.length - 1" class="step-connector"></div>
-          </div>
-        </div>
+        <table class="w-full">
+          <tbody>
+            <tr v-for="course in sampleCourses" :key="course.code" class="border-b border-line last:border-0">
+              <td class="px-4 py-3">
+                <span class="body-5 block">{{ course.name }}</span>
+                <span class="caption-5 text-ink-muted">{{ course.code }}</span>
+              </td>
+              <td class="caption-2 tabular px-4 py-3 text-right text-ink-soft">{{ course.credits }} credits</td>
+              <td class="body-4 tabular px-4 py-3 text-right" :class="course.tone">{{ course.grade }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
-    <!-- ── Grading scales ── -->
-    <section id="scales" class="section scales-section">
-      <div class="container">
-        <div class="section-label">Grading scales</div>
-        <h2 class="section-title display">Your system,<br>not ours</h2>
-        <p class="section-sub">Switch between grading systems in one click. GradeMate adapts to your institution's
-          standards.</p>
-
-        <div class="scales-grid">
-          <div v-for="scale in scales" :key="scale.name" class="scale-card">
-            <div class="scale-flag">{{ scale.flag }}</div>
-            <h3 class="scale-name">{{ scale.name }}</h3>
-            <p class="scale-desc">{{ scale.desc }}</p>
-            <div class="scale-grades">
-              <div v-for="g in scale.grades" :key="g.grade" class="scale-grade-row">
-                <span class="sg-grade">{{ g.grade }}</span>
-                <div class="sg-bar-wrap">
-                  <div class="sg-bar" :style="{ width: (g.points / scale.max * 100) + '%' }"></div>
-                </div>
-                <span class="sg-points">{{ g.points }}</span>
+    <section ref="planSection" class="bg-surface">
+      <div class="mx-auto max-w-6xl px-6 py-24">
+        <h2 class="heading-2 max-w-hero">Plan what comes next</h2>
+        <div class="mt-12 grid gap-12 tablet:grid-cols-5">
+          <div class="rounded-2xl border border-line bg-raised p-6 tablet:col-span-3" aria-hidden="true">
+            <p class="caption-2 text-ink-soft">If you score these grades next semester</p>
+            <div class="mt-4 flex flex-col gap-2">
+              <div v-for="row in whatIfRows" :key="row.course" class="flex items-center justify-between gap-4 rounded-lg bg-surface p-3">
+                <span class="body-5">{{ row.course }}</span>
+                <span class="flex gap-1">
+                  <span
+                    v-for="grade in ['A', 'B', 'C']"
+                    :key="grade"
+                    class="caption-3 flex size-8 items-center justify-center rounded-md"
+                    :class="grade === row.grade ? 'bg-accent text-on-accent' : 'bg-overlay text-ink-soft'"
+                  >{{ grade }}</span>
+                </span>
               </div>
             </div>
+            <div class="mt-6 flex items-end justify-between gap-4">
+              <div>
+                <p class="caption-2 text-ink-soft">Your CGPA would be</p>
+                <p class="heading-3 tabular">3.59</p>
+              </div>
+              <p class="body-5 inline-flex items-center gap-2 text-accent-ink">
+                <PhTrendUp :size="16" weight="bold" />
+                Up 0.07
+              </p>
+            </div>
+          </div>
+          <dl class="flex flex-col gap-6 tablet:col-span-2">
+            <div v-for="item in planning" :key="item.title">
+              <dt class="title-2">{{ item.title }}</dt>
+              <dd class="body-6 mt-1 text-ink-soft">{{ item.detail }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section ref="schoolSection" class="mx-auto max-w-6xl px-6 py-24">
+      <div class="grid items-end gap-6 tablet:grid-cols-2">
+        <h2 class="heading-2">Fits your school</h2>
+        <p class="body-3 text-ink-soft">Choose the 4.0, 5.0, or UK scale, or build a custom grading scale for your own school and keep the same tools.</p>
+      </div>
+      <div class="mt-12 overflow-x-auto rounded-2xl border border-line" tabindex="0" role="region" aria-label="Grading scales compared">
+        <table class="w-full min-w-96 text-left">
+          <thead class="bg-surface">
+            <tr>
+              <th v-for="scale in scales" :key="scale.name" scope="col" class="title-4 p-4">{{ scale.name }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(_, rowIndex) in scales[0]!.grades" :key="rowIndex" class="border-t border-line">
+              <td v-for="scale in scales" :key="scale.name" class="body-6 tabular p-4 text-ink-soft">{{ scale.grades[rowIndex] }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="body-6 mt-6 text-ink-soft">
+        Just need a quick answer? Use a free calculator page for the
+        <a class="text-link" href="/calculator/4-0-gpa">4.0 scale</a>,
+        <a class="text-link" href="/calculator/5-0-gpa">5.0 scale</a>, or
+        <a class="text-link" href="/calculator/uk">UK scale</a>.
+      </p>
+    </section>
+
+    <section ref="keepSection" class="border-y border-line">
+      <div class="mx-auto max-w-6xl px-6 py-24">
+        <h2 class="heading-2 max-w-hero">Enter it once, keep it safe</h2>
+        <div class="mt-12 grid gap-x-12 gap-y-8 tablet:grid-cols-2">
+          <div v-for="group in keeping" :key="group.title">
+            <h3 class="title-1 flex items-center gap-2">
+              <component :is="group.icon" :size="24" class="text-accent-ink" aria-hidden="true" />
+              {{ group.title }}
+            </h3>
+            <ul class="mt-4 flex flex-col gap-2">
+              <li v-for="item in group.items" :key="item" class="body-6 text-ink-soft">{{ item }}</li>
+            </ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ── CTA ── -->
-    <section class="cta-section">
-      <div class="container">
-        <div class="cta-card">
-          <div class="cta-bg-blob"></div>
-          <h2 class="cta-title display">Ready to take control<br>of your GPA?</h2>
-          <p class="cta-sub">Join students who track their academic progress with GradeMate.</p>
-          <div class="cta-actions">
-            <NuxtLink to="/register" class="btn btn-primary btn-lg">Create your free account</NuxtLink>
-            <NuxtLink to="/login" class="btn btn-ghost btn-lg">Sign in</NuxtLink>
-          </div>
+    <section class="mx-auto max-w-6xl px-6 py-24" data-tagline>
+      <TaglineReveal :lines="['Every semester is a star.', 'Chart the line to where you want to finish.']" />
+    </section>
+
+    <section id="how-it-works" ref="howSection" class="scroll-mt-24 bg-surface">
+      <div class="mx-auto max-w-6xl px-6 py-24">
+        <h2 class="heading-2">How it works</h2>
+        <ol class="mt-12 grid gap-8 tablet:grid-cols-3 tablet:items-end">
+          <li v-for="(step, index) in steps" :key="step.title" class="flex flex-col gap-2" :class="step.offset">
+            <PhStarFour :size="32" weight="fill" class="text-accent-ink" aria-hidden="true" />
+            <h3 class="heading-6">{{ index + 1 }}. {{ step.title }}</h3>
+            <p class="body-6 text-ink-soft">{{ step.detail }}</p>
+          </li>
+        </ol>
+        <p class="body-6 mt-12 text-ink-soft">
+          Want to look around first?
+          <button type="button" class="text-link" :disabled="starting" @click="startDemo">See a demo</button>
+          with sample grades.
+        </p>
+      </div>
+    </section>
+
+    <section ref="proofSection" class="mx-auto max-w-6xl px-6 py-24">
+      <h2 class="heading-2">What students say</h2>
+      <div class="mt-12 grid gap-4 tablet:grid-cols-3">
+        <figure class="rounded-2xl border border-dashed border-line-strong p-6 tablet:col-span-2" data-placeholder>
+          <blockquote class="heading-5 text-ink-soft">{{ placeholder('testimonial') }}</blockquote>
+          <figcaption class="caption-2 mt-4 text-ink-muted">{{ placeholder('student name and school') }}</figcaption>
+        </figure>
+        <div class="flex flex-col justify-center rounded-2xl border border-dashed border-line-strong p-6" data-placeholder>
+          <p class="heading-5 text-ink-soft">{{ placeholder('statistic') }}</p>
+          <p class="caption-2 mt-2 text-ink-muted">Placeholder until real figures exist</p>
         </div>
       </div>
     </section>
 
+    <section id="faq" ref="faqSection" class="mx-auto max-w-3xl scroll-mt-24 px-6 pb-24">
+      <h2 class="heading-2">Questions, answered</h2>
+      <div class="mt-8 flex flex-col">
+        <details v-for="item in faqs" :key="item.question" class="faq-item border-b border-line">
+          <summary class="title-2 flex cursor-pointer list-none items-center justify-between gap-4 py-4">
+            {{ item.question }}
+            <PhPlus class="faq-icon shrink-0 text-ink-soft" :size="16" weight="bold" aria-hidden="true" />
+          </summary>
+          <p class="body-3 pb-4 text-ink-soft">{{ item.answer }}</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="dark relative isolate overflow-hidden text-ink" data-final-action>
+      <NightScene class="-z-10" />
+      <div class="mx-auto flex max-w-6xl flex-col items-center px-6 pt-24 pb-24 text-center">
+        <h2 class="heading-2 max-w-hero">Start charting your course</h2>
+        <p class="body-3 mt-4 max-w-hero text-ink">Add your first semester in a few minutes and see what it takes to reach your target.</p>
+        <NuxtLink to="/register" class="button button-primary mt-8">
+          Create your free account
+          <PhArrowRight :size="16" weight="bold" aria-hidden="true" />
+        </NuxtLink>
+        <div class="h-48" />
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useAcademicStore } from '~/stores/academic'
+import {
+  PhArrowRight,
+  PhArrowsClockwise,
+  PhChartLineUp,
+  PhCalendarBlank,
+  PhClipboardText,
+  PhKeyboard,
+  PhMedal,
+  PhPlus,
+  PhShareNetwork,
+  PhShieldCheck,
+  PhSparkle,
+  PhStarFour,
+  PhTrendUp,
+} from '@phosphor-icons/vue'
 
-const academic = useAcademicStore()
-const router = useRouter()
+const { starting, startDemo } = useDemo()
 
-function loadDemo() {
-  academic.loadDemo()
-  router.push('/dashboard')
-}
+const standSection = useReveal()
+const planSection = useReveal()
+const schoolSection = useReveal()
+const keepSection = useReveal()
+const howSection = useReveal()
+const proofSection = useReveal()
+const faqSection = useReveal()
 
-const bars = [
-  { h: 82, l: 'S1' },
-  { h: 88, l: 'S2' },
-  { h: 75, l: 'S3' },
-  { h: 91, l: 'S4' },
-  { h: 95, l: 'S5' },
+const placeholder = (name: string) => `{{${name}}}`
+
+const standing = [
+  { icon: PhChartLineUp, title: 'GPA and CGPA tracking', detail: 'See your semester GPA and CGPA update the moment you add a grade.' },
+  { icon: PhCalendarBlank, title: 'Records by year and semester', detail: 'Every course sits in the academic year and semester it belongs to.' },
+  { icon: PhTrendUp, title: 'GPA progress chart', detail: 'Follow your results across every semester at a glance.' },
+  { icon: PhMedal, title: 'CGPA classification', detail: 'Know which degree class your current CGPA puts you in.' },
+  { icon: PhArrowsClockwise, title: 'Retakes and school rules', detail: 'Repeated and pass or fail courses count the way your school counts them.' },
+  { icon: PhClipboardText, title: 'Assessment tracker', detail: 'Enter coursework scores and see what you need on the final exam.' },
 ]
 
-const previewCourses = [
-  {
-    name: 'Algorithms',
-    grade: 'A',
-    cls: 'grade-a'
-  },
-  {
-    name: 'Operating Systems',
-    grade: 'A',
-    cls: 'grade-a'
-  },
-  {
-    name: 'Computer Networks',
-    grade: 'B+',
-    cls: 'grade-b'
-  },
-  {
-    name: 'Database Systems',
-    grade: 'A-',
-    cls: 'grade-a'
-  },
+const sampleCourses = [
+  { name: 'Algorithms', code: 'CSC 301', credits: 4, grade: 'A', tone: 'text-positive' },
+  { name: 'Operating Systems', code: 'CSC 305', credits: 3, grade: 'A', tone: 'text-positive' },
+  { name: 'Database Systems', code: 'CSC 312', credits: 3, grade: 'B+', tone: 'text-accent-ink' },
 ]
 
-const features = [
-  {
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-6"/></svg>`,
-    title: 'CGPA tracking',
-    desc: 'Group courses by semester and academic year. Watch your cumulative GPA evolve in real time.',
-  },
-  {
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`,
-    title: 'Target forecaster',
-    desc: 'Set a CGPA goal. The forecaster tells you exactly what grades you need in upcoming semesters to hit it.',
-  },
-  {
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>`,
-    title: 'Semester history',
-    desc: 'Every grade, every semester. Your complete academic record, organised and always accessible.',
-  },
-  {
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`,
-    title: 'Multiple grading scales',
-    desc: 'Switch between 4.0 GPA, 5.0 GPA, or UK degree classifications. Your institution\'s system, supported.',
-  },
-  {
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
-    title: 'PDF export',
-    desc: 'Download a polished semester report for academic advisor meetings, scholarship applications, or internships.',
-  },
-  {
-    icon: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-    title: 'Persistent & private',
-    desc: 'Your data is saved locally and synced to your account. Close the tab, come back next week — it\'s all there.',
-  },
+const whatIfRows = [
+  { course: 'Compilers', grade: 'A' },
+  { course: 'Computer Networks', grade: 'B' },
+  { course: 'Software Engineering', grade: 'A' },
 ]
 
-const steps = [
-  {
-    title: 'Add your courses',
-    desc: 'Enter your course names, credit units, and the grades you earned (or expect to earn).'
-  },
-  {
-    title: 'See your GPA instantly',
-    desc: 'GradeMate calculates your semester GPA and running CGPA the moment you enter data.'
-  },
-  {
-    title: 'Plan your next move',
-    desc: 'Use the forecaster to find out what scores you need to reach your academic goals.'
-  },
+const planning = [
+  { title: 'Target forecaster', detail: 'Set a target CGPA to see the average you need, with scenarios for every result.' },
+  { title: 'What if grades', detail: 'Try different grades for upcoming courses without touching your real record.' },
+  { title: 'Saved degree goal', detail: 'Save your target and total credits, then follow your progress from the dashboard.' },
+  { title: 'Scholarship and honors tracker', detail: 'Track the GPA you must keep and get a warning when a requirement is at risk.' },
 ]
 
 const scales = [
-  {
-    flag: '🇺🇸',
-    name: '4.0 Scale',
-    desc: 'Standard US university grading',
-    max: 4.0,
-    grades: [
-      { grade: 'A', points: 4.0 },
-      { grade: 'B+', points: 3.3 },
-      { grade: 'B', points: 3.0 },
-      { grade: 'C', points: 2.0 },
-      { grade: 'D', points: 1.0 },
-    ],
-  },
-  {
-    flag: '🇳🇬',
-    name: '5.0 Scale',
-    desc: 'Common in Nigerian universities',
-    max: 5.0,
-    grades: [
-      { grade: 'A', points: 5.0 },
-      { grade: 'B', points: 4.0 },
-      { grade: 'C', points: 3.0 },
-      { grade: 'D', points: 2.0 },
-      { grade: 'E', points: 1.0 },
-    ],
-  },
-  {
-    flag: '🇬🇧',
-    name: 'UK Classifications',
-    desc: 'Degree classification system',
-    max: 4.0,
-    grades: [
-      { grade: 'First (1st)', points: 4.0 },
-      { grade: 'Upper 2nd (2:1)', points: 3.3 },
-      { grade: 'Lower 2nd (2:2)', points: 2.7 },
-      { grade: 'Third (3rd)', points: 2.0 },
-    ],
-  },
+  { name: '4.0 scale', grades: ['A: 4.0', 'B: 3.0', 'C: 2.0'] },
+  { name: '5.0 scale', grades: ['A: 5.0', 'B: 4.0', 'C: 3.0'] },
+  { name: 'UK scale', grades: ['First', 'Upper second', 'Lower second'] },
+  { name: 'Custom scale', grades: ['Your grades', 'Your points', 'Your cutoffs'] },
+]
+
+const keeping = [
+  { icon: PhKeyboard, title: 'Enter it fast', items: ['Type a score and get the grade.', 'Keyboard entry for a whole semester of courses.', 'Course templates for common degrees.'] },
+  { icon: PhShieldCheck, title: 'Keep it safe', items: ['Real accounts with password reset.', 'Records synced across your devices.', 'JSON data export and import from a backup.'] },
+  { icon: PhShareNetwork, title: 'Share it', items: ['PDF semester reports for advisors and applications.', 'A private progress share link for a parent or sponsor.'] },
+  { icon: PhSparkle, title: 'Make it yours', items: ['Dark and light modes.', 'Demo data, so you can explore before adding your own.'] },
+]
+
+const steps = [
+  { title: 'Add your courses', detail: 'Enter each course with its credits and the grade you earned or expect.', offset: '' },
+  { title: 'See your GPA', detail: 'Your semester GPA and CGPA are calculated as soon as you enter a grade.', offset: 'tablet:pb-8' },
+  { title: 'Plan your next move', detail: 'Set a target and find out what you need from the semesters ahead.', offset: 'tablet:pb-16' },
+]
+
+const faqs = [
+  { question: 'Is GradeMate really free?', answer: 'Yes. Every feature is free for every student, with no paid plan and no credit card.' },
+  { question: 'Which grading scales does it support?', answer: 'The 4.0 scale, the 5.0 scale, and UK degree classifications. You can also build a custom scale for your school.' },
+  { question: 'What if my school has its own rules?', answer: 'You can set how retakes count, mark pass or fail courses, and add your own grades and cutoffs.' },
+  { question: 'Can I try it before creating an account?', answer: 'Yes. The demo opens a full dashboard with sample grades, so you can explore everything first.' },
+  { question: 'Will my records be on all my devices?', answer: 'Yes. Your records are saved to your account and synced, so they appear wherever you sign in.' },
+  { question: 'Can I get my data out?', answer: 'Yes. You can download your records as JSON, restore them from a backup, and create PDF semester reports.' },
+  { question: 'Is my GPA here official?', answer: 'No. GradeMate calculates from what you enter, so your institution\'s records always take priority.' },
+  { question: 'Does it work on my phone?', answer: 'Yes. GradeMate works in the browser on phones, tablets, and computers, with no download.' },
 ]
 </script>
 
 <style scoped>
-/* ── Hero ── */
-.hero {
-  position: relative;
-  overflow: hidden;
-  padding: 80px 0 100px;
-  min-height: 90vh;
-  display: flex;
-  align-items: center;
+.faq-icon {
+  transition: transform 500ms var(--ease-weighted);
 }
 
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+.faq-item[open] .faq-icon {
+  transform: rotate(45deg);
 }
 
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-}
-
-.b1 {
-  width: 700px;
-  height: 700px;
-  background: rgba(245, 166, 35, 0.15);
-  top: -200px;
-  right: -100px;
-}
-
-.b2 {
-  width: 500px;
-  height: 500px;
-  background: rgba(59, 130, 246, 0.08);
-  bottom: -100px;
-  left: 0;
-}
-
-.grid-overlay {
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-  linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-
-.light .grid-overlay {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-  linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  align-items: center;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
-  font-size: 0.82rem;
-}
-
-.badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--amber-400);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-.hero-title {
-  font-size: clamp(2.8rem, 5vw, 4.2rem);
-  color: var(--text-primary);
-  margin-bottom: 20px;
-  line-height: 1.05;
-}
-
-.accent-em {
-  font-style: italic;
-  color: var(--amber-400);
-}
-
-.hero-subtitle {
-  font-size: 1.05rem;
-  color: var(--text-secondary);
-  line-height: 1.7;
-  max-width: 420px;
-  margin-bottom: 32px;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.hero-hint {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-/* ── Dashboard preview ── */
-.hero-visual {
-  position: relative;
-}
-
-.dashboard-preview {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border);
-  transform: perspective(800px) rotateY(-4deg) rotateX(2deg);
-  transition: transform 0.3s var(--ease);
-}
-
-.dashboard-preview:hover {
-  transform: perspective(800px) rotateY(-1deg) rotateX(1deg);
-}
-
-.preview-header {
-  background: var(--bg-elevated);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.preview-dots {
-  display: flex;
-  gap: 6px;
-}
-
-.preview-dots span {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--border-strong);
-}
-
-.preview-dots span:nth-child(1) {
-  background: #ef4444;
-}
-
-.preview-dots span:nth-child(2) {
-  background: #f59e0b;
-}
-
-.preview-dots span:nth-child(3) {
-  background: #22c55e;
-}
-
-.preview-title {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-.preview-body {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.preview-stat-row {
-  display: flex;
-  gap: 12px;
-}
-
-.preview-stat {
-  flex: 1;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.preview-stat-label {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.preview-stat-val {
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  font-family: var(--font-display);
-}
-
-.cgpa-val {
-  color: var(--amber-400);
-}
-
-.preview-chart {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-md);
-  padding: 14px;
-  border: 1px solid var(--border);
-}
-
-.chart-label {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  margin-bottom: 12px;
-}
-
-.chart-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  height: 70px;
-}
-
-.chart-bar-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  height: 100%;
-  justify-content: flex-end;
-}
-
-.chart-bar {
-  width: 100%;
-  background: var(--accent);
-  border-radius: 4px 4px 0 0;
-  opacity: 0.8;
-  animation: growUp 0.6s var(--delay, 0s) var(--ease) both;
-  transform-origin: bottom;
-}
-
-@keyframes growUp {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
-}
-
-.chart-bar-label {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-}
-
-.preview-courses {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.preview-course-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 10px;
-  background: var(--bg-elevated);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-}
-
-.preview-course-name {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.preview-grade {
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.grade-a {
-  background: rgba(34, 197, 94, 0.12);
-  color: var(--green-400);
-}
-
-.grade-b {
-  background: var(--accent-subtle);
-  color: var(--amber-400);
-}
-
-/* ── Proof strip ── */
-.proof-strip {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-surface);
-  padding: 16px 0;
-}
-
-.proof-inner {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.proof-text {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  flex-shrink: 0;
-}
-
-.proof-scales {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.scale-chip {
-  font-size: 0.78rem;
-  padding: 4px 12px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  color: var(--text-secondary);
-}
-
-/* ── Sections ── */
-.section {
-  padding: 96px 0;
-}
-
-.section-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--amber-400);
-  margin-bottom: 12px;
-}
-
-.section-title {
-  font-size: clamp(2rem, 3.5vw, 3rem);
-  color: var(--text-primary);
-  margin-bottom: 16px;
-}
-
-.section-sub {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  max-width: 500px;
-  line-height: 1.7;
-  margin-bottom: 56px;
-}
-
-/* ── Features grid ── */
-.features-section {
-  background: var(--bg-surface);
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.feature-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 28px 24px;
-  transition: border-color 0.2s, transform 0.2s;
-}
-
-.feature-card:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-2px);
-}
-
-.feature-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: var(--accent-subtle);
-  color: var(--amber-400);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.feature-title {
-  font-size: 1rem;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-.feature-desc {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  line-height: 1.65;
-}
-
-/* ── Steps ── */
-.how-section {
-  background: var(--bg-base);
-}
-
-.steps {
-  display: flex;
-  gap: 0;
-  position: relative;
-}
-
-.step {
-  flex: 1;
-  position: relative;
-  padding: 32px 24px;
-}
-
-.step:not(:last-child) {
-  border-right: 1px solid var(--border);
-}
-
-.step-num {
-  font-family: var(--font-display);
-  font-size: 3rem;
-  font-weight: 300;
-  color: var(--accent);
-  opacity: 0.6;
-  line-height: 1;
-  margin-bottom: 16px;
-}
-
-.step-title {
-  font-size: 1.05rem;
-  font-weight: 500;
-  margin-bottom: 10px;
-}
-
-.step-desc {
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  line-height: 1.65;
-}
-
-/* ── Scales ── */
-.scales-section {
-  background: var(--bg-surface);
-}
-
-.scales-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.scale-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 28px 24px;
-}
-
-.scale-flag {
-  font-size: 2rem;
-  margin-bottom: 12px;
-}
-
-.scale-name {
-  font-size: 1rem;
-  font-weight: 500;
-  margin-bottom: 6px;
-}
-
-.scale-desc {
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  margin-bottom: 20px;
-}
-
-.scale-grades {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.scale-grade-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.82rem;
-}
-
-.sg-grade {
-  width: 80px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
-  font-size: 0.78rem;
-}
-
-.sg-bar-wrap {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-overlay);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.sg-bar {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 3px;
-  opacity: 0.7;
-}
-
-.sg-points {
-  width: 28px;
-  text-align: right;
-  color: var(--text-muted);
-  font-size: 0.78rem;
-}
-
-/* ── CTA ── */
-.cta-section {
-  padding: 80px 0 100px;
-}
-
-.cta-card {
-  position: relative;
-  overflow: hidden;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-xl);
-  padding: 72px 64px;
-  text-align: center;
-}
-
-.cta-bg-blob {
-  position: absolute;
-  top: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 400px;
-  border-radius: 50%;
-  background: var(--accent);
-  filter: blur(120px);
-  opacity: 0.07;
-  pointer-events: none;
-}
-
-.cta-title {
-  font-size: clamp(1.8rem, 3vw, 2.8rem);
-  margin-bottom: 16px;
-  position: relative;
-}
-
-.cta-sub {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  margin-bottom: 36px;
-  position: relative;
-}
-
-.cta-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  position: relative;
-}
-
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .hero-inner {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-visual {
-    display: none;
-  }
-
-  .features-grid, .scales-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .steps {
-    flex-direction: column;
-  }
-
-  .step:not(:last-child) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-@media (max-width: 600px) {
-  .features-grid, .scales-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-actions {
-    flex-direction: column;
-  }
-
-  .cta-card {
-    padding: 40px 24px;
-  }
-
-  .cta-actions {
-    flex-direction: column;
-  }
+.faq-item summary::-webkit-details-marker {
+  display: none;
 }
 </style>
